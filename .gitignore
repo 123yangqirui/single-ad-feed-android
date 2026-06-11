@@ -13,3 +13,37 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+
+# Gradle 缓存与构建目录
+build/
+*/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# 本机SDK路径配置，绝对不能提交
+
+# Android 编译输出产物
+captures/
+*.apk
+*.ap_
+*.dex
+*.class
+app/release/
+app/debug/
+
+# Android Studio / IntelliJ IDEA 配置
+.idea/
+
+*.iws
+*.ipr
+out/
+
+
+# 签名密钥、密码配置
+*.jks
+*.keystore
+signing.properties
+
+# 日志、临时文件
+*.log
+buildSrc/build/
