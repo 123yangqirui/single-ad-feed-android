@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:paddingTop="?attr/actionBarSize">
+
+    <TextView
+        android:id="@+id/welcome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="欢迎使用，每次使用都是新的开始"
+        android:textSize="14sp"
+        android:textColor="@color/black"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="12dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+
+    <!-- 顶部频道按钮组 -->
+    <LinearLayout
+        android:id="@+id/channel_layout"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/welcome">
+
+        <Button
+            android:id="@+id/btn_channel_1"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="精选"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:background="@drawable/bg_channel_btn_selected"
+            android:layout_marginEnd="15dp"/>
+
+        <Button
+            android:id="@+id/btn_channel_2"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="推荐"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:background="@drawable/bg_channel_btn_normal"
+            android:layout_marginHorizontal="15dp"/>
+
+        <Button
+            android:id="@+id/btn_channel_3"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="本地"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:background="@drawable/bg_channel_btn_normal"
+            android:layout_marginHorizontal="15dp"/>
+    </LinearLayout>
+
+    <!-- 3. 搜索框 -->
+    <LinearLayout
+        android:id="@+id/search_layout"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:background="@drawable/bg_search_box"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="5dp"
+        android:paddingHorizontal="12dp"
+        app:layout_constraintTop_toBottomOf="@id/channel_layout">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_menu_search"
+            android:layout_gravity="center_vertical"/>
+
+        <LinearLayout
+            android:id="@+id/search_hint_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="8dp"
+            android:orientation="vertical"
+            android:clipChildren="false">
+
+            <TextView
+                android:id="@+id/search_hint_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="找运动相关的广告"
+                android:textColor="#999999"
+                android:textSize="14sp"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_search"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:text="搜索"
+            android:textSize="12sp"
+            android:background="@drawable/bg_search_btn"
+            android:paddingHorizontal="12dp"
+            android:layout_gravity="center_vertical"/>
+    </LinearLayout>
+
+    <!-- 标签过滤区域 -->
+    <LinearLayout
+        android:id="@+id/filter_tag_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        android:minHeight="40dp"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toBottomOf="@id/search_layout">
+
+        <!-- 引导文字 -->
+        <TextView
+            android:id="@+id/filter_hint_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="点击卡片标签过滤下方内容"
+            android:textColor="#999999"
+            android:textSize="14sp"
+            android:visibility="visible"/>
+
+        <!-- 已选标签容器 -->
+        <LinearLayout
+            android:id="@+id/selected_tags_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:visibility="gone"/>
+    </LinearLayout>
+
+    <!-- 顶部内容区域 + 底部阴影（替换纯Barrier，实现6dp边距+阴影） -->
+    <View
+        android:id="@+id/top_content_shadow"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_marginHorizontal="6dp"
+        android:background="@drawable/top_bottom_shadow"
+        app:layout_constraintTop_toBottomOf="@id/filter_tag_container"/>
+
+    <!-- ViewPager2 内容区域 -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager2"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
+        app:layout_constraintTop_toBottomOf="@id/top_content_shadow"
+        app:layout_constraintVertical_bias="0.0"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <!-- 底部导航栏 -->
+    <LinearLayout
+        android:id="@+id/bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:background="@android:color/white"
+        android:elevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <Button
+            android:id="@+id/btn_my"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="个人中心"
+            android:textSize="12sp"
+            android:textColor="#2196F3"
+            android:background="@null"
+            android:drawableTop="@drawable/ic_person"
+            android:drawablePadding="1dp"/>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

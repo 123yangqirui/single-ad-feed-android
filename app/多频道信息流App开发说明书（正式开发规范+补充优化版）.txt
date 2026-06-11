@@ -1,0 +1,385 @@
+多频道信息流App开发说明书（正式开发规范文档）
+一、项目整体架构说明（固定不变）
+1.1 整体架构
+本项目采用单Activity + 多Fragment + ViewPager2 + 单RecyclerView多ItemType + Room本地数据库架构。
+核心架构优势：状态永久缓存、页面隔离、数据统一、无复用错乱、体验对标主流资讯App。
+整体层级：
+- MainActivity（唯一主页面）：承载顶部固定栏、频道切换按钮、ViewPager2
+- 3个频道Fragment：相互完全隔离，各自独立列表、独立数据、独立滚动状态
+- RecyclerView（多类型条目）：大图/小图/视频三种Item
+- DetailActivity（详情页）：完整内容展示、高级视频播放、状态同步交互
+- Room数据库：全局唯一本地数据源，实现列表/详情数据双向同步
+1.2 全局固定规则（必须严格遵守）
+- 所有数据仅本地Room存储，无网络请求
+- 一套数据表，区分频道、区分条目类型，不做多套数据（避免不同步）
+- 所有点赞/收藏状态实时落库，UI基于数据库状态刷新
+- 所有频道Fragment永久缓存，不销毁、不重置位置
+- 列表、详情页交互双向同步，数据唯一可信源为Room数据库
+
+---
+二、页面结构规范（UI布局标准）
+2.1 MainActivity 布局规范（ConstraintLayout）
+根布局：ConstraintLayout（全局唯一主容器）
+页面分为上下两大固定区域：
+1. 顶部固定区域（常驻）
+  - 预留自定义Dialog弹窗位置（后续迭代）
+  - 三个频道切换按钮（推荐/热门/关注）
+  - 按钮具备选中高亮、未选中置灰状态切换
+2. 下半部分内容区域
+  - ViewPager2 填充剩余所有屏幕高度
+  - 承载3个频道Fragment，实现频道切换
+2.2 频道按钮交互规范
+- 点击按钮 → 切换ViewPager2对应页面
+- 滑动ViewPager2 → 同步更新按钮选中状态
+- 选中态：字体加深、颜色高亮、轻微缩放突出
+- 未选中态：浅灰色、常规字体
+2.3 ViewPager2 核心配置（固定参数）
+- 页面数量：3个Fragment
+- 缓存阈值：offscreenPageLimit = 2（三页面永久缓存，不销毁）
+- 切换动画：系统原生平滑左右滑动动画（简洁原生风）
+- 功能效果：切换频道不丢失滚动位置、不丢失数据、不重置状态
+
+---
+三、频道Fragment 标准化规范（3个Fragment完全统一）
+3.1 Fragment通用结构
+每个频道Fragment布局仅包含：SwipeRefreshLayout + RecyclerView
+三个Fragment仅查询的频道数据不同，所有逻辑、适配器、交互完全复用。
+3.2 RecyclerView 强制功能清单
+1. 多ViewHolder多类型条目：大图、小图、视频 三种ItemType
+2. 下拉刷新：清空当前列表，重新加载第一页11条数据
+3. 分页加载：每页固定11条，滑动到倒数第三条触发下一页加载
+4. 子线程加载数据：数据库查询在子线程执行，UI线程仅刷新界面
+5. 防重复加载机制：isLoading 布尔锁，避免并发加载
+6. 无更多数据终止：返回数据不足11条，关闭分页加载
+3.3 多类型Item判定规则
+- 根据实体类 itemType 字段区分：
+        
+  - 0：小图条目
+  - 1：大图条目
+  - 2：视频条目（支持预览播放）
+- 重写 getItemViewType 返回类型，分别创建对应ViewHolder
+
+---
+四、列表核心功能开发规范
+4.1 分页加载硬性规则（严格执行）
+- 单页数据量：固定11条/页
+- 触发时机：滑动显示到倒数第三条Item
+- 加载方式：子线程查询Room数据库，主线程更新UI
+- 加载保护：正在加载中禁止二次触发
+- 终止条件：新加载数据 <11条，标记hasMore=false
+4.2 下拉刷新规则
+- 触发后：清空原有列表数据、重置页码为1、重新加载首页11条
+- 加载完成自动关闭刷新动画
+- 刷新过程禁止分页加载
+4.3 列表视频预览功能规范
+- 播放模式：默认无声自动预览播放
+- 交互：用户可手动点击暂停/播放
+- 播放策略：屏幕内自动播放、滑出屏幕自动暂停
+- 单例播放：同一时间仅一个视频条目播放，避免多视频混音、性能卡顿
+4.4 列表交互功能（点赞/收藏/转发）
+- 点击交互：立即修改本地实体状态 + 同步更新Room数据库
+- UI刷新：单条目局部刷新 notifyItemChanged，不全局刷新
+- 状态持久化：退出页面、重启App状态保留
+- 转发：仅UI交互，无需持久化
+
+---
+五、详情页 DetailActivity 开发规范
+5.1 跳转规则
+- 触发时机：点击列表任意Item跳转
+- 传参规则：仅传递Item唯一ID，不传递完整数据
+- 数据加载：详情页根据ID查询Room数据库获取完整详情数据
+5.2 跳转动画规范（全局统一）
+- 进入动画：页面右侧滑入
+- 退出动画：页面右侧滑出
+- 风格：简洁轻量，无花哨特效，符合原生App交互质感
+5.3 详情页视频播放规范（优于列表预览）
+- 具备进度条实时展示
+- 具备声音开关（默认静音，用户可手动开启）
+- 完整播放/暂停控制
+- 支持记忆播放进度（可选）
+5.4 双向数据同步规则（核心重点）
+- 列表点赞/收藏 → 更新数据库 → 详情页打开自动同步最新状态
+- 详情页点赞/收藏 → 更新数据库 → 返回列表自动刷新对应Item状态
+- 所有状态以本地数据库为唯一可信源，杜绝数据不一致
+
+---
+六、状态保留核心规范（满足你的位置留存需求）
+6.1 所有留存效果无需手动写代码
+依托 ViewPager2 offscreenPageLimit=2 缓存机制，自动实现：
+- 切换频道，返回原频道位置、数据、状态完全保留
+- 跳转详情页，返回列表原滚动位置、原浏览进度、原交互状态全部保留
+- 三个频道各自独立缓存，互不干扰
+6.2 禁止操作（避免状态丢失）
+- 禁止手动销毁Fragment
+- 禁止每次可见重新初始化列表数据
+- 禁止重置LayoutManager滚动位置
+
+---
+七、本地数据架构规范（统一数据方案）
+7.1 数据方案结论
+无需两套数据！仅单张数据表实现所有需求
+摒弃「简要数据+详情数据」双数据结构，避免同步错乱、维护复杂。
+7.2 单数据表核心字段设计
+数据表名：feed_info_table
+核心字段：
+- id：主键唯一ID
+- channelType：频道类型（区分3个频道）
+- itemType：条目类型（大图/小图/视频）
+- title：标题（列表展示）
+- simpleContent：简略内容（列表展示）
+- detailContent：完整详情内容（详情页展示）
+- coverImg：封面图地址
+- videoUrl：视频地址
+- isLike：点赞状态
+- isStar：收藏状态
+- createTime：排序时间
+7.3 数据读写逻辑
+- 列表页：查询简略字段，分页展示
+- 详情页：根据ID查询完整字段
+- 点赞/收藏：执行数据库update更新
+- 下拉刷新：分页查询最新数据
+- 上拉加载：offset分页累加查询
+7.4 技术选型
+采用 AndroidX Room 官方数据库框架
+- 支持子线程安全查询
+- 原生分页查询适配
+- 实体类自动映射，无手写SQL
+- 状态实时持久化
+
+---
+八、全局动画规范（统一风格）
+8.1 频道切换动画
+ViewPager2原生平滑左右滑动动画，轻量简洁，无自定义过度动画。
+8.2 页面跳转动画
+- MainActivity → DetailActivity：右进
+- DetailActivity → MainActivity：右出
+8.3 列表动画
+- 条目更新：局部刷新，无全局闪烁
+- 分页加载：底部平滑追加
+- 下拉刷新：标准Material刷新动画
+
+---
+九、标准化开发顺序（严格按此开发，零返工）
+下面为唯一正确开发顺序，按顺序逐点完成即可一次性成型：
+1. 阶段1：基础架构搭建
+  - 创建MainActivity ConstraintLayout布局
+  - 搭建顶部频道按钮、底部ViewPager2结构
+  - 创建3个空频道Fragment
+  - 绑定ViewPager2适配器、设置缓存参数、频道按钮高亮逻辑
+2. 阶段2：Room数据库搭建
+  - 创建实体类、Dao、Database
+  - 初始化本地测试数据
+  - 封装分页查询、单条查询、状态更新方法
+3. 阶段3：Fragment列表基础功能
+  - RecyclerView基础布局、多类型Item布局
+  - 编写多ViewHolder适配器
+  - 实现下拉刷新、分页加载（11条/倒数第三条触发）
+4. 阶段4：列表交互功能
+  - 点赞、收藏、转发UI交互
+  - 交互状态同步更新数据库
+  - 视频条目无声自动预览播放
+5. 阶段5：详情页开发
+  - 创建DetailActivity布局与页面跳转动画
+  - 根据ID查询本地详情数据
+  - 实现详情页高级视频播放（进度条/声音开关）
+  - 详情页点赞收藏交互+数据库同步
+6. 阶段6：全局测试校验
+  - 校验频道切换位置留存
+  - 校验详情页返回位置留存
+  - 校验双向数据状态同步
+  - 校验分页、刷新、视频播放稳定性
+
+---
+十、最终需求匹配校验（100%全覆盖）
+对照你原始10条需求，全部满足：
+1. ✅ ConstraintLayout主页面、顶部固定栏+频道按钮、底部Fragment列表
+2. ✅ 三频道三Fragment、按钮选中高亮
+3. ✅ 多ViewHolder、11条分页、倒数第三条触发、下拉刷新
+4. ✅ 列表视频无声自动预览、手动控制播放
+5. ✅ 列表点赞收藏转发、详情页同功能双向同步
+6. ✅ 条目跳转新Activity、自带简洁跳转动画
+7. ✅ 详情页精细化视频播放、状态同步
+8. ✅ 返回保留原频道、原滚动位置
+9. ✅ 频道切换永久保留各页面位置
+10. ✅ 单数据表Room本地存储，一套数据解决列表+详情
+
+---
+
+十一、补充规范与性能优化细则（追加修订版）
+
+本章节为原规范的必要补充，开发阶段必须同步执行，不可跳过。
+
+11.1 数据层查询优化（防止内存浪费）
+11.1.1 单表投影查询规则
+- 列表页查询禁止 SELECT *，必须显式指定字段，排除 detailContent 大文本
+- 创建 FeedListItem 轻量 POJO，仅包含列表展示所需字段：id、title、simpleContent、coverImg、itemType、isLike、isStar、createTime
+- 详情页查询使用完整 FeedEntity，加载全部字段含 detailContent
+- Room Dao 中分别定义：
+  - @Query("SELECT id, title, simpleContent, coverImg, itemType, isLike, isStar, createTime FROM feed_info_table WHERE channelType = :type ORDER BY createTime DESC LIMIT :limit OFFSET :offset")
+  - @Query("SELECT * FROM feed_info_table WHERE id = :id")
+
+11.1.2 数据初始化规则
+- 首次安装通过 RoomDatabase.Callback 预置 50+ 条测试数据，避免空列表
+- 封面图与视频资源优先使用网络 URL（数据元信息本地存储，媒体资源网络加载）
+- 若需内置资源，统一放入 assets，APK 体积超过 50MB 需拆分包
+
+11.2 视频播放引擎选型与生命周期管理（强制规范）
+11.2.1 引擎选型
+- 列表预览与详情页播放统一使用 ExoPlayer（Google 官方推荐）
+- 禁止使用系统 VideoView / MediaPlayer
+
+11.2.2 实例复用策略
+- 列表视频预览：全局维护 1 个 ExoPlayer 实例，滑动切换时复用，避免多视频混音
+- 详情页视频：独立 1 个 ExoPlayer 实例，支持完整控制（进度条、声音开关、记忆播放）
+- 页面跳转时：列表播放器 release，详情页播放器初始化；返回时反向操作
+
+11.2.3 生命周期绑定
+- Fragment onPause()：暂停播放，释放 Surface
+- Fragment onResume()：恢复当前屏幕内视频自动播放
+- Fragment onDestroy()：彻底 release ExoPlayer，防止内存泄漏
+- 预加载策略：滑动到视频 Item 前 1 个位置时开始缓冲（buffer 500ms）
+
+11.2.4 缓存策略
+- ExoPlayer 开启 CacheDataSource，视频文件缓存至本地磁盘（上限 200MB，LRU 淘汰）
+- 避免重复下载同一视频 URL
+
+11.3 状态同步实时观察机制（核心升级）
+11.3.1 观察模式
+- Dao 查询返回 Flow<<FeedEntity> 或 LiveData<<FeedEntity>，实现自动观察
+- 列表页和详情页同时观察同一条数据，任何一方修改数据库，另一方自动刷新
+- 禁止手动调用 notifyDataSetChanged 做全局同步
+
+11.3.2 实现示例
+- 列表适配器内：collect Flow 更新单条 Item（notifyItemChanged(position)）
+- 详情页：observe LiveData 更新点赞/收藏按钮状态
+- 转发操作：仅 UI 交互，不持久化，无需观察
+
+11.4 内存管控与防 OOM 策略
+11.4.1 单频道数据上限
+- 每个频道内存中最多保留 100 条数据，超过时从头部移除（offset 逻辑支持往回滑时重新加载）
+- 分页加载时先检查内存列表长度，超限则移除头部 11 条后再追加尾部
+
+11.4.2 RecyclerView 缓存池复用
+- 三个 Fragment 共享同一个 RecycledViewPool：recyclerView.setRecycledViewPool(sharedPool)
+- 大图/小图/视频三种 ViewHolder 分别设置最大缓存数：5 / 10 / 2
+
+11.4.3 图片加载框架（强制引入）
+- 统一使用 Glide 或 Coil
+- 列表封面限制加载尺寸：maxWidth = 300dp，maxHeight = 200dp
+- 详情页原图加载，但内存缓存限制 50MB
+- 图片加载失败时显示默认占位图，禁止空白
+
+11.5 分页加载精确触发规则
+11.5.1 触发条件
+- 使用 LinearLayoutManager.findLastVisibleItemPosition() 精确判断
+- 条件：!isLoading && hasMore && lastVisible >= adapter.itemCount - 3
+- 注意区分 Layout Position 与 Adapter Position（有 Header 时容易错位）
+
+11.5.2 加载动画
+- 底部显示 Loading Item（独立 ViewType），加载完成后移除
+- 禁止在原有列表中直接插入空白数据占位
+
+11.6 下拉刷新体验优化
+11.6.1 保留旧数据策略
+- 下拉刷新时不清空列表，后台加载新数据
+- 加载成功后：DiffUtil 比对旧列表与新列表，局部更新，无闪烁
+- 仅当用户切换频道或 App 冷启动超过 30 分钟，才允许清空重载
+
+11.6.2 DiffUtil 规范
+- 必须实现 DiffUtil.ItemCallback，比对规则：id 相同即同一项，内容相同则无需更新
+- 分页加载使用 DiffUtil.calculateDiff() + dispatchUpdatesTo(adapter)
+- 禁止直接调用 notifyDataSetChanged()
+
+11.7 页面跳转状态持久化（防御性编程）
+11.7.1 滚动位置保存
+- Fragment 在 onSaveInstanceState() 中保存 LinearLayoutManager.onSaveInstanceState()
+- 在 onViewCreated() 中恢复：layoutManager.onRestoreInstanceState(savedState)
+- 配合 ViewModel + SavedStateHandle，防止系统回收 Activity 后位置丢失
+
+11.7.2 频道状态保存
+- 当前选中频道索引存入 ViewModel SavedStateHandle
+- 系统回收后重建时，恢复 ViewPager2 到原频道位置
+
+11.8 线程模型与交互防抖
+11.8.1 线程规范
+- 所有数据库操作必须在 Dispatchers.IO 中执行
+- UI 刷新统一在 Dispatchers.Main / lifecycleScope 中执行
+- 禁止使用裸 Thread、AsyncTask（已废弃）
+
+11.8.2 防重复点击
+- 点赞/收藏/转发按钮统一加 500ms 防抖（ThrottleFirst）
+- 数据库 update 操作前检查 isLoading 锁，避免并发写入竞态
+
+11.9 深色模式与主题适配（预留规范）
+11.9.1 颜色规范
+- Item 布局禁止写死 #FFFFFF 或 #000000
+- 统一使用 ?attr/colorSurface、?attr/colorOnSurface、?attr/colorPrimary 等主题属性
+- 图片占位图、分割线、文字颜色全部走主题属性
+
+11.9.2 适配说明
+- 当前版本不强制实现深色模式，但布局必须按上述规范编写，确保后续切换无返工
+
+11.10 最终补充校验清单（开发完成逐项勾选）
+- [ ] 列表查询使用投影字段，detailContent 不加载到内存
+- [ ] ExoPlayer 实例复用，生命周期绑定无泄漏
+- [ ] Room 返回 Flow/LiveData，列表与详情双向自动同步
+- [ ] Glide 引入并限制内存缓存 50MB，封面限制尺寸
+- [ ] 单频道内存数据上限 100 条，超限时头部移除
+- [ ] 三个 Fragment 共享 RecycledViewPool
+- [ ] 分页触发使用 findLastVisibleItemPosition()，倒数第三条精确触发
+- [ ] 下拉刷新不清空，DiffUtil 局部更新
+- [ ] 滚动位置通过 onSaveInstanceState + ViewModel 持久化
+- [ ] 所有按钮 500ms 防抖，数据库操作带 IO 线程 + 加载锁
+- [ ] 布局颜色全部使用主题属性，无硬编码色值
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+阶段 1：基础架构（优先完成）
+主页面 ConstraintLayout 布局、频道按钮、ViewPager2 搭建
+3 个空 Fragment 创建、ViewPager2 适配器绑定、缓存配置
+频道按钮选中状态、页面双向联动
+验收：切换频道正常，按钮状态同步，页面无崩溃。
+阶段 2：数据层（地基，越早做越好）
+Room 环境搭建：实体类、Dao、Database
+预置测试数据、封装分页 / 单条查询 / 状态更新接口
+实现投影查询、Flow/LiveData 数据观察
+验收：数据库增删改查正常，数据可正常分页读取。
+阶段 3：列表基础功能
+多类型 Item 布局、多 ViewHolder 适配器
+SwipeRefreshLayout 下拉刷新 + 分页加载（11 条 / 倒数第三条触发）
+DiffUtil 局部更新、内存数据上限管控
+验收：分页、刷新逻辑正常，无重复加载、无数据错乱。
+阶段 4：列表交互 & 视频预览
+点赞 / 收藏 / 转发 UI + 数据库同步 + 按钮防抖
+ExoPlayer 集成、列表无声预览、单例播放、生命周期管理
+验收：交互状态持久化，视频播放正常，无混音、无泄漏。
+阶段 5：详情页开发
+DetailActivity 布局、右进右出跳转动画
+根据 ID 查询详情数据、完整视频播放（进度条 / 音量控制）
+详情页交互、数据双向同步
+验收：跳转动画正常，视频功能完整，状态与列表同步。
+阶段 6：加固 & 兼容 & 全量测试
+滚动位置、频道状态持久化（应对系统回收）
+主题适配、图片加载优化、内存泄漏检测
+逐项核对「最终补充校验清单」
+验收：所有需求、边界场景全部通过。
+
+
+
+1.豆包阶段一整体框架，trae历史倒二怎么实现动态加载，对应文件看了
+2.豆包阶段二实现Room数据管理
+3.Room数据库创建使用流程，子线程加载
+4.adapter和recycleview
+5.顺着历史一点点翻就行了

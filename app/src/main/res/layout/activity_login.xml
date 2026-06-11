@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="32dp"
+    android:background="@drawable/splash_img"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="登录"
+        android:textSize="28sp"
+        android:textColor="@color/black"
+        android:layout_marginBottom="48dp"/>
+
+    <EditText
+        android:id="@+id/et_username"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:hint="用户名"
+        android:inputType="text"
+        android:background="@drawable/bg_search_box"
+        android:paddingHorizontal="16dp"
+        android:layout_marginBottom="16dp"/>
+
+    <EditText
+        android:id="@+id/et_password"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:hint="密码"
+        android:inputType="textPassword"
+        android:background="@drawable/bg_search_box"
+        android:paddingHorizontal="16dp"
+        android:layout_marginBottom="24dp"/>
+
+    <Button
+        android:id="@+id/btn_login"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="登录"
+        android:textSize="18sp"
+        android:textColor="#2196F3"
+        android:background="@drawable/bg_search_btn"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btn_register"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="新用户注册"
+        android:textSize="18sp"
+        android:textColor="#2196F3"
+        android:background="@drawable/bg_channel_btn_normal"
+        android:layout_marginBottom="16dp"/>
+
+</LinearLayout>
