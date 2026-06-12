@@ -30,6 +30,7 @@ captures/
 *.class
 app/release/
 app/debug/
+*.txt
 
 # Android Studio / IntelliJ IDEA 配置
 .idea/
