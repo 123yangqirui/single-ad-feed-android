@@ -4,6 +4,15 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
+// 从 local.properties 读取 API Key
+val localProperties = java.util.Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(java.io.FileInputStream(localPropertiesFile))
+}
+
+val deepseekApiKey = localProperties.getProperty("DEEPSEEK_API_KEY", "")
+
 configurations {
     all {
         exclude(group = "com.intellij", module = "annotations")
@@ -43,7 +52,10 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
+
+    buildConfigField("String", "DEEPSEEK_API_KEY", "\"$deepseekApiKey\"")
 
 
 }

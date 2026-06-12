@@ -89,8 +89,20 @@ class DialogActivity : AppCompatActivity() {
     private fun initRecyclerView() {
         messageAdapter = MessageAdapter(messages) { adItem ->
             // 点击搜索结果跳转到详情页
-            val intent = Intent(this, DetailActivity::class.java)
-            intent.putExtra("ad_id", adItem.id)
+            val intent = Intent(this, DetailActivity::class.java).apply {
+                putExtra(DetailActivity.EXTRA_ID, adItem.id)
+                putExtra(DetailActivity.EXTRA_TITLE, adItem.title)
+                putExtra(DetailActivity.EXTRA_DESC, adItem.desc)
+                putExtra(DetailActivity.EXTRA_DETAIL_CONTENT, adItem.detailContent)
+                putExtra(DetailActivity.EXTRA_LABELS, adItem.label.toTypedArray())
+                putExtra(DetailActivity.EXTRA_IMG_URL, adItem.imgUrl)
+                putExtra(DetailActivity.EXTRA_VIDEO_URL, adItem.videoUrl)
+                putExtra(DetailActivity.EXTRA_TYPE, adItem.type)
+                putExtra(DetailActivity.EXTRA_LIKE, adItem.like)
+                putExtra(DetailActivity.EXTRA_STAR, adItem.star)
+                putExtra(DetailActivity.EXTRA_LIKE_COUNT, adItem.likeCount)
+                putExtra(DetailActivity.EXTRA_STAR_COUNT, adItem.starCount)
+            }
             startActivity(intent)
         }
 

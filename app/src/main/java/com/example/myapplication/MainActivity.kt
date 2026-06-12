@@ -122,14 +122,26 @@ class MainActivity : AppCompatActivity() {
     private fun setupSearchBoxClick() {
         val searchLayout = findViewById<LinearLayout>(R.id.search_layout)
         val btnSearch = findViewById<Button>(R.id.btn_search)
+        val searchHintText = findViewById<TextView>(R.id.search_hint_text)
 
-        // 点击整个搜索框
-        searchLayout.setOnClickListener {
+        // 点击搜索框的 TextView（搜索提示文字区域）- 用户自由输入
+        searchHintText.setOnClickListener {
             DialogActivity.start(this)
         }
 
-        // 点击搜索按钮
+        // 点击搜索按钮 - 使用当前滚动的提示文字作为查询
         btnSearch.setOnClickListener {
+            val currentHint = searchHintText.text.toString()
+            if (currentHint.isNotEmpty()) {
+                DialogActivity.start(this, currentHint)
+            } else {
+                DialogActivity.start(this)
+            }
+        }
+
+        // 点击搜索框布局（除了 TextView 和 Button 之外的区域）- 用户自由输入
+        searchLayout.setOnClickListener {
+            // 只有点击的不是 TextView 和 Button 时才触发
             DialogActivity.start(this)
         }
     }
