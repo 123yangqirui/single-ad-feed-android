@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 对话框关闭时的进入动画：主页面恢复 -->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="300"
+    android:interpolator="@android:anim/decelerate_interpolator">
+    
+    <translate
+        android:fromYDelta="-20%"
+        android:toYDelta="0%"/>
+    
+    <alpha
+        android:fromAlpha="0.7"
+        android:toAlpha="1.0"/>
+</set>

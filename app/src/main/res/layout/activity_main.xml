@@ -112,7 +112,7 @@
             android:layout_height="32dp"
             android:text="搜索"
             android:textSize="12sp"
-            android:background="@drawable/bg_search_btn"
+            android:background="@drawable/bg_search_btn_main"
             android:paddingHorizontal="12dp"
             android:layout_gravity="center_vertical"/>
     </LinearLayout>

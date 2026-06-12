@@ -9,6 +9,7 @@ import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -22,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.myapplication.dataprocess.DataInitHelper
 import com.example.myapplication.dataprocess.UserManager
+import com.example.myapplication.dialog.DialogActivity
 import kotlinx.coroutines.launch
 
 
@@ -109,6 +111,27 @@ class MainActivity : AppCompatActivity() {
                 updateFilterTagUI(tags)
             }
         })
+
+        // 设置搜索框点击事件
+        setupSearchBoxClick()
+    }
+
+    /**
+     * 设置搜索框点击事件，点击后打开对话页面
+     */
+    private fun setupSearchBoxClick() {
+        val searchLayout = findViewById<LinearLayout>(R.id.search_layout)
+        val btnSearch = findViewById<Button>(R.id.btn_search)
+
+        // 点击整个搜索框
+        searchLayout.setOnClickListener {
+            DialogActivity.start(this)
+        }
+
+        // 点击搜索按钮
+        btnSearch.setOnClickListener {
+            DialogActivity.start(this)
+        }
     }
 
     private fun updateFilterTagUI(tags: Set<String>) {

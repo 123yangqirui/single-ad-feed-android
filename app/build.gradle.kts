@@ -84,4 +84,10 @@ dependencies {
 
     // 视频缓存库
     implementation("com.danikula:videocache:2.7.1")
+
+    // Retrofit 和 OkHttp
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 }
