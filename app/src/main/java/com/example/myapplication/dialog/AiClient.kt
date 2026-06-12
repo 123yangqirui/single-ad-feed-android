@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 object AiClient {
 
     private const val BASE_URL = "https://api.deepseek.com/v1/"
-    private const val API_KEY = "sk-4d6119dfbd254c0d9a813e32adde59c4" // 请替换为实际的 API Key
+    private const val API_KEY = "" // 请替换为实际的 API Key
 
     private val gson = Gson()
 
