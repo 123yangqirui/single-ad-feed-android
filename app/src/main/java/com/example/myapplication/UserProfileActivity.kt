@@ -61,6 +61,7 @@ class UserProfileActivity : AppCompatActivity() {
 
         // 初始化列表
         historyAdapter = UserItemsAdapter { item ->
+            val user = UserManager.getCurrentUser()
             val intent = Intent(this, DetailActivity::class.java).apply {
                 putExtra(DetailActivity.EXTRA_ID, item.id)
                 putExtra(DetailActivity.EXTRA_TITLE, item.title)
@@ -70,8 +71,9 @@ class UserProfileActivity : AppCompatActivity() {
                 putExtra(DetailActivity.EXTRA_IMG_URL, item.imgUrl)
                 putExtra(DetailActivity.EXTRA_VIDEO_URL, item.videoUrl)
                 putExtra(DetailActivity.EXTRA_TYPE, item.type)
-                putExtra(DetailActivity.EXTRA_LIKE, item.like)
-                putExtra(DetailActivity.EXTRA_STAR, item.star)
+                // 根据用户的点赞/收藏列表设置状态
+                putExtra(DetailActivity.EXTRA_LIKE, user?.likeList?.contains(item.id) ?: false)
+                putExtra(DetailActivity.EXTRA_STAR, user?.starList?.contains(item.id) ?: false)
                 putExtra(DetailActivity.EXTRA_LIKE_COUNT, item.likeCount)
                 putExtra(DetailActivity.EXTRA_STAR_COUNT, item.starCount)
             }
@@ -81,6 +83,7 @@ class UserProfileActivity : AppCompatActivity() {
         rvHistory.adapter = historyAdapter
 
         likesAdapter = UserItemsAdapter { item ->
+            val user = UserManager.getCurrentUser()
             val intent = Intent(this, DetailActivity::class.java).apply {
                 putExtra(DetailActivity.EXTRA_ID, item.id)
                 putExtra(DetailActivity.EXTRA_TITLE, item.title)
@@ -90,8 +93,9 @@ class UserProfileActivity : AppCompatActivity() {
                 putExtra(DetailActivity.EXTRA_IMG_URL, item.imgUrl)
                 putExtra(DetailActivity.EXTRA_VIDEO_URL, item.videoUrl)
                 putExtra(DetailActivity.EXTRA_TYPE, item.type)
-                putExtra(DetailActivity.EXTRA_LIKE, item.like)
-                putExtra(DetailActivity.EXTRA_STAR, item.star)
+                // 根据用户的点赞/收藏列表设置状态
+                putExtra(DetailActivity.EXTRA_LIKE, user?.likeList?.contains(item.id) ?: false)
+                putExtra(DetailActivity.EXTRA_STAR, user?.starList?.contains(item.id) ?: false)
                 putExtra(DetailActivity.EXTRA_LIKE_COUNT, item.likeCount)
                 putExtra(DetailActivity.EXTRA_STAR_COUNT, item.starCount)
             }
@@ -101,6 +105,7 @@ class UserProfileActivity : AppCompatActivity() {
         rvLikes.adapter = likesAdapter
 
         starsAdapter = UserItemsAdapter { item ->
+            val user = UserManager.getCurrentUser()
             val intent = Intent(this, DetailActivity::class.java).apply {
                 putExtra(DetailActivity.EXTRA_ID, item.id)
                 putExtra(DetailActivity.EXTRA_TITLE, item.title)
@@ -110,8 +115,9 @@ class UserProfileActivity : AppCompatActivity() {
                 putExtra(DetailActivity.EXTRA_IMG_URL, item.imgUrl)
                 putExtra(DetailActivity.EXTRA_VIDEO_URL, item.videoUrl)
                 putExtra(DetailActivity.EXTRA_TYPE, item.type)
-                putExtra(DetailActivity.EXTRA_LIKE, item.like)
-                putExtra(DetailActivity.EXTRA_STAR, item.star)
+                // 根据用户的点赞/收藏列表设置状态
+                putExtra(DetailActivity.EXTRA_LIKE, user?.likeList?.contains(item.id) ?: false)
+                putExtra(DetailActivity.EXTRA_STAR, user?.starList?.contains(item.id) ?: false)
                 putExtra(DetailActivity.EXTRA_LIKE_COUNT, item.likeCount)
                 putExtra(DetailActivity.EXTRA_STAR_COUNT, item.starCount)
             }
@@ -140,6 +146,12 @@ class UserProfileActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // 每次返回页面时刷新列表数据
+        loadUserData()
     }
 
     override fun onBackPressed() {

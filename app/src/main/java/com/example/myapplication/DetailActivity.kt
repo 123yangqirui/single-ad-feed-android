@@ -6,6 +6,7 @@ import android.media.MediaPlayer
 import android.net.Uri
 import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.dataprocess.AppDatabase
+import com.example.myapplication.dataprocess.UserManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import android.graphics.PorterDuff
@@ -146,6 +147,11 @@ class DetailActivity : AppCompatActivity() {
         updateLikeState()
         updateStarState()
 
+        // 记录浏览历史
+        if (itemId.isNotEmpty()) {
+            UserManager.addBrowseHistory(itemId)
+        }
+
         // 根据类型显示图片或视频
         if (type == 2 && !videoUrl.isNullOrEmpty()) {
             // 视频类型 - 使用缓存代理 URL
@@ -251,6 +257,12 @@ class DetailActivity : AppCompatActivity() {
             animateButton(likeBtn)
             // 保存到数据库
             saveLikeState()
+            // 更新用户点赞列表
+            if (isLiked) {
+                UserManager.addLike(itemId)
+            } else {
+                UserManager.removeLike(itemId)
+            }
         }
 
         // 收藏按钮
@@ -262,6 +274,12 @@ class DetailActivity : AppCompatActivity() {
             animateButton(starBtn)
             // 保存到数据库
             saveStarState()
+            // 更新用户收藏列表
+            if (isStarred) {
+                UserManager.addStar(itemId)
+            } else {
+                UserManager.removeStar(itemId)
+            }
         }
 
         // 分享按钮

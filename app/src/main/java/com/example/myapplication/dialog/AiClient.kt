@@ -1,6 +1,7 @@
 package com.example.myapplication.dialog
 
 import android.util.Log
+import com.example.myapplication.BuildConfig
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor

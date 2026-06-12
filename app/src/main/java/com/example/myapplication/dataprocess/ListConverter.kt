@@ -76,8 +76,8 @@ object UserManager {
             // 移除重复项并添加到开头
             history.remove(itemId)
             history.add(0, itemId)
-            // 保留最近20条记录
-            if (history.size > 20) {
+            // 保留最近50条记录
+            if (history.size > 50) {
                 history.removeLast()
             }
             user.browseHistory = history

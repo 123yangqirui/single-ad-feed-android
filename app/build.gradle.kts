@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -5,10 +8,10 @@ plugins {
 }
 
 // 从 local.properties 读取 API Key
-val localProperties = java.util.Properties()
+val localProperties = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
-    localProperties.load(java.io.FileInputStream(localPropertiesFile))
+    localProperties.load(FileInputStream(localPropertiesFile))
 }
 
 val deepseekApiKey = localProperties.getProperty("DEEPSEEK_API_KEY", "")
@@ -35,6 +38,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "DEEPSEEK_API_KEY", "\"$deepseekApiKey\"")
     }
 
     buildTypes {
@@ -54,9 +58,6 @@ android {
         compose = true
         buildConfig = true
     }
-
-    buildConfigField("String", "DEEPSEEK_API_KEY", "\"$deepseekApiKey\"")
-
 
 }
 
