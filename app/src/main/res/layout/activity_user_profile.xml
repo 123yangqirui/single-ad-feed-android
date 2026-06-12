@@ -1,160 +1,167 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#f5f5f5">
+    android:background="#f5f5f5"
+    android:fillViewport="true">
 
-    <!-- 用户信息头部 -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="130dp"
-        android:background="#2196F3"
-        android:orientation="vertical"
-        android:padding="24dp">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-        <!-- 顶部导航栏 -->
+        <!-- 用户信息头部 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="130dp"
+            android:background="#2196F3"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- 顶部导航栏 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <Button
+                    android:id="@+id/btn_back"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@null"
+                    android:drawableLeft="@android:drawable/ic_menu_revert"
+                    android:drawablePadding="0dp"/>
+
+                <TextView
+                    android:id="@+id/tv_username"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="用户名"
+                    android:textSize="24sp"
+                    android:textColor="@android:color/white"
+                    android:gravity="center"/>
+
+                <View
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"/>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_logout"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginTop="8dp"
+                android:layout_gravity="end"
+                android:layout_marginRight="0dp"
+                android:background="@android:color/white"
+                android:paddingHorizontal="24dp"
+                android:text="退出登录"
+                android:textColor="#2196F3"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- 浏览历史 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <Button
-                android:id="@+id/btn_back"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@null"
-                android:drawableLeft="@android:drawable/ic_menu_revert"
-                android:drawablePadding="0dp"/>
+            android:orientation="vertical"
+            android:layout_marginTop="16dp"
+            android:background="@android:color/white"
+            android:padding="16dp">
 
             <TextView
-                android:id="@+id/tv_username"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="用户名"
-                android:textSize="24sp"
-                android:textColor="@android:color/white"
+                android:text="浏览历史"
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                android:layout_marginBottom="12dp"/>
+
+            <TextView
+                android:id="@+id/empty_history"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="暂无浏览记录"
+                android:textColor="#999999"
+                android:textSize="14sp"
                 android:gravity="center"/>
 
-            <View
-                android:layout_width="40dp"
-                android:layout_height="40dp"/>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_history"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"/>
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btn_logout"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:layout_marginTop="8dp"
-            android:layout_gravity="end"
-            android:layout_marginRight="0dp"
+        <!-- 点赞列表 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="16dp"
             android:background="@android:color/white"
-            android:paddingHorizontal="24dp"
-            android:text="退出登录"
-            android:textColor="#2196F3"
-            android:textSize="14sp" />
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="点赞列表"
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                android:layout_marginBottom="12dp"/>
+
+            <TextView
+                android:id="@+id/empty_likes"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="暂无点赞记录"
+                android:textColor="#999999"
+                android:textSize="14sp"
+                android:gravity="center"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_likes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"/>
+        </LinearLayout>
+
+        <!-- 收藏列表 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@android:color/white"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="收藏列表"
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                android:layout_marginBottom="12dp"/>
+
+            <TextView
+                android:id="@+id/empty_stars"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="暂无收藏记录"
+                android:textColor="#999999"
+                android:textSize="14sp"
+                android:gravity="center"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_stars"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"/>
+        </LinearLayout>
+
     </LinearLayout>
 
-    <!-- 浏览历史 -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="16dp"
-        android:background="@android:color/white"
-        android:padding="16dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="浏览历史"
-            android:textSize="18sp"
-            android:textColor="@color/black"
-            android:layout_marginBottom="12dp"/>
-
-        <TextView
-            android:id="@+id/empty_history"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:text="暂无浏览记录"
-            android:textColor="#999999"
-            android:textSize="14sp"
-            android:gravity="center"/>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_history"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:maxHeight="200dp"/>
-    </LinearLayout>
-
-    <!-- 点赞列表 -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="16dp"
-        android:background="@android:color/white"
-        android:padding="16dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="点赞列表"
-            android:textSize="18sp"
-            android:textColor="@color/black"
-            android:layout_marginBottom="12dp"/>
-
-        <TextView
-            android:id="@+id/empty_likes"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:text="暂无点赞记录"
-            android:textColor="#999999"
-            android:textSize="14sp"
-            android:gravity="center"/>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_likes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:maxHeight="200dp"/>
-    </LinearLayout>
-
-    <!-- 收藏列表 -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        android:background="@android:color/white"
-        android:padding="16dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="收藏列表"
-            android:textSize="18sp"
-            android:textColor="@color/black"
-            android:layout_marginBottom="12dp"/>
-
-        <TextView
-            android:id="@+id/empty_stars"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:text="暂无收藏记录"
-            android:textColor="#999999"
-            android:textSize="14sp"
-            android:gravity="center"/>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_stars"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:maxHeight="200dp"/>
-    </LinearLayout>
-
-</LinearLayout>
+</ScrollView>
