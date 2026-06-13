@@ -1,29 +1,32 @@
+# Gradle
 *.iml
 .gradle
+build/
+*/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# SDK 路径与本地配置
 /local.properties
+local.properties
+
+# Android Studio / IntelliJ IDEA
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
-/app/src/main/assets/
+.idea/
+*.iws
+*.ipr
+out/
+
+# macOS
 .DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
-local.properties
-
-
-# Gradle 缓存与构建目录
-build/
-*/build/
-!gradle/wrapper/gradle-wrapper.jar
-
-# 本机SDK路径配置，绝对不能提交
 
 # Android 编译输出产物
+/build
+/captures
 captures/
 *.apk
 *.ap_
@@ -33,13 +36,9 @@ app/release/
 app/debug/
 *.txt
 
-# Android Studio / IntelliJ IDEA 配置
-.idea/
-
-*.iws
-*.ipr
-out/
-
+# NDK / CMake
+.externalNativeBuild
+.cxx
 
 # 签名密钥、密码配置
 *.jks
@@ -49,3 +48,6 @@ signing.properties
 # 日志、临时文件
 *.log
 buildSrc/build/
+
+# Assets（本地测试数据不提交）
+/app/src/main/assets/

@@ -72,29 +72,57 @@
             android:elevation="2dp"
             android:padding="16dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="浏览历史"
-                android:textSize="18sp"
-                android:textColor="@color/text_primary"
-                android:textStyle="bold"
-                android:layout_marginBottom="12dp"/>
-
-            <TextView
-                android:id="@+id/empty_history"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:text="暂无浏览记录"
-                android:textColor="@color/text_hint"
-                android:textSize="14sp"
-                android:gravity="center"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_history"
+            <LinearLayout
+                android:id="@+id/header_history"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"/>
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="浏览历史"
+                    android:textSize="18sp"
+                    android:textColor="@color/text_primary"
+                    android:textStyle="bold"/>
+
+                <ImageView
+                    android:id="@+id/arrow_history"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/baseline_arrow_back"
+                    android:rotation="-90"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/content_history"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/empty_history"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="暂无浏览记录"
+                    android:textColor="@color/text_hint"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:layout_marginTop="12dp"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_history"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:layout_marginTop="12dp"/>
+            </LinearLayout>
         </LinearLayout>
 
         <!-- 点赞列表 -->
@@ -108,29 +136,57 @@
             android:elevation="2dp"
             android:padding="16dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="点赞列表"
-                android:textSize="18sp"
-                android:textColor="@color/text_primary"
-                android:textStyle="bold"
-                android:layout_marginBottom="12dp"/>
-
-            <TextView
-                android:id="@+id/empty_likes"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:text="暂无点赞记录"
-                android:textColor="@color/text_hint"
-                android:textSize="14sp"
-                android:gravity="center"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_likes"
+            <LinearLayout
+                android:id="@+id/header_likes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"/>
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="点赞列表"
+                    android:textSize="18sp"
+                    android:textColor="@color/text_primary"
+                    android:textStyle="bold"/>
+
+                <ImageView
+                    android:id="@+id/arrow_likes"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/baseline_arrow_back"
+                    android:rotation="-90"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/content_likes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/empty_likes"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="暂无点赞记录"
+                    android:textColor="@color/text_hint"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:layout_marginTop="12dp"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_likes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:layout_marginTop="12dp"/>
+            </LinearLayout>
         </LinearLayout>
 
         <!-- 收藏列表 -->
@@ -145,29 +201,57 @@
             android:elevation="2dp"
             android:padding="16dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="收藏列表"
-                android:textSize="18sp"
-                android:textColor="@color/text_primary"
-                android:textStyle="bold"
-                android:layout_marginBottom="12dp"/>
-
-            <TextView
-                android:id="@+id/empty_stars"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:text="暂无收藏记录"
-                android:textColor="@color/text_hint"
-                android:textSize="14sp"
-                android:gravity="center"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_stars"
+            <LinearLayout
+                android:id="@+id/header_stars"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"/>
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="收藏列表"
+                    android:textSize="18sp"
+                    android:textColor="@color/text_primary"
+                    android:textStyle="bold"/>
+
+                <ImageView
+                    android:id="@+id/arrow_stars"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/baseline_arrow_back"
+                    android:rotation="-90"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/content_stars"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/empty_stars"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="暂无收藏记录"
+                    android:textColor="@color/text_hint"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:layout_marginTop="12dp"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_stars"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:layout_marginTop="12dp"/>
+            </LinearLayout>
         </LinearLayout>
 
     </LinearLayout>

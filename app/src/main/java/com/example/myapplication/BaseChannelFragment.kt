@@ -258,6 +258,7 @@ open class BaseChannelFragment(private val channelType: Int) : Fragment(), Filte
             // UI 更新必须在主线程执行
             lifecycleScope.launch(Dispatchers.Main) {
                 adapter.submitList(dataList.toList())
+                adapter.setShowFooter(!hasMore && dataList.isNotEmpty())
                 isLoading = false
                 swipeRefresh.isRefreshing = false
             }

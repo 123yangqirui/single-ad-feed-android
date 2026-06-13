@@ -40,6 +40,20 @@ class UserProfileActivity : AppCompatActivity() {
     private lateinit var emptyLikes: TextView
     private lateinit var emptyStars: TextView
 
+    private lateinit var headerHistory: LinearLayout
+    private lateinit var headerLikes: LinearLayout
+    private lateinit var headerStars: LinearLayout
+    private lateinit var contentHistory: LinearLayout
+    private lateinit var contentLikes: LinearLayout
+    private lateinit var contentStars: LinearLayout
+    private lateinit var arrowHistory: ImageView
+    private lateinit var arrowLikes: ImageView
+    private lateinit var arrowStars: ImageView
+
+    private var isHistoryExpanded = false
+    private var isLikesExpanded = false
+    private var isStarsExpanded = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_profile)
@@ -53,6 +67,18 @@ class UserProfileActivity : AppCompatActivity() {
         emptyHistory = findViewById(R.id.empty_history)
         emptyLikes = findViewById(R.id.empty_likes)
         emptyStars = findViewById(R.id.empty_stars)
+
+        headerHistory = findViewById(R.id.header_history)
+        headerLikes = findViewById(R.id.header_likes)
+        headerStars = findViewById(R.id.header_stars)
+        contentHistory = findViewById(R.id.content_history)
+        contentLikes = findViewById(R.id.content_likes)
+        contentStars = findViewById(R.id.content_stars)
+        arrowHistory = findViewById(R.id.arrow_history)
+        arrowLikes = findViewById(R.id.arrow_likes)
+        arrowStars = findViewById(R.id.arrow_stars)
+
+        setupExpandableSections()
 
         // 设置用户名
         val user = UserManager.getCurrentUser()
@@ -160,6 +186,34 @@ class UserProfileActivity : AppCompatActivity() {
         // 添加返回动画
         overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
     }
+
+    private fun setupExpandableSections() {
+        headerHistory.setOnClickListener {
+            toggleSection(contentHistory, arrowHistory)
+            isHistoryExpanded = !isHistoryExpanded
+        }
+
+        headerLikes.setOnClickListener {
+            toggleSection(contentLikes, arrowLikes)
+            isLikesExpanded = !isLikesExpanded
+        }
+
+        headerStars.setOnClickListener {
+            toggleSection(contentStars, arrowStars)
+            isStarsExpanded = !isStarsExpanded
+        }
+    }
+
+    private fun toggleSection(content: LinearLayout, arrow: ImageView) {
+        if (content.visibility == View.VISIBLE) {
+            content.visibility = View.GONE
+            arrow.animate().rotation(-90f).setDuration(200).start()
+        } else {
+            content.visibility = View.VISIBLE
+            arrow.animate().rotation(0f).setDuration(200).start()
+        }
+    }
+
 
     private fun loadUserData() {
         val user = UserManager.getCurrentUser() ?: return

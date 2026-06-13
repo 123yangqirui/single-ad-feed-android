@@ -51,9 +51,23 @@ class FeedAdapter : ListAdapter<AdItem, RecyclerView.ViewHolder>(diffCallback) {
         const val TYPE_BIG = 0
         const val TYPE_SMALL = 1
         const val TYPE_VIDEO = 2
+        const val TYPE_FOOTER = 3
+    }
+
+    private var showFooter = false
+
+    fun setShowFooter(show: Boolean) {
+        showFooter = show
+    }
+
+    override fun getItemCount(): Int {
+        return super.getItemCount() + if (showFooter) 1 else 0
     }
 
     override fun getItemViewType(position: Int): Int {
+        if (showFooter && position == itemCount - 1) {
+            return TYPE_FOOTER
+        }
         return getItem(position).type
     }
 
@@ -74,16 +88,21 @@ class FeedAdapter : ListAdapter<AdItem, RecyclerView.ViewHolder>(diffCallback) {
                     .inflate(R.layout.item_video, parent, false)
                 VideoViewHolder(view)
             }
+            TYPE_FOOTER -> {
+                val view = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.item_footer, parent, false)
+                FooterViewHolder(view)
+            }
             else -> throw Exception("未知类型")
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val item = getItem(position)
         when (holder) {
-            is BigImageViewHolder -> holder.bind(item)
-            is SmallImageViewHolder -> holder.bind(item)
-            is VideoViewHolder -> holder.bind(item)
+            is BigImageViewHolder -> holder.bind(getItem(position))
+            is SmallImageViewHolder -> holder.bind(getItem(position))
+            is VideoViewHolder -> holder.bind(getItem(position))
+            is FooterViewHolder -> holder.bind()
         }
     }
 
@@ -319,6 +338,13 @@ class FeedAdapter : ListAdapter<AdItem, RecyclerView.ViewHolder>(diffCallback) {
         private fun updateStarState(item: AdItem) {
             starBtn.setColorFilter((if (item.star) 0xFFFFD700 else 0xFF999999).toInt(), PorterDuff.Mode.SRC_IN)
             starCount.text = formatCount(item.starCount)
+        }
+    }
+
+    // 底部提示
+    inner class FooterViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        fun bind() {
+            // 底部提示不需要绑定数据
         }
     }
 
