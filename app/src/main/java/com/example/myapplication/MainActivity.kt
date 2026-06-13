@@ -5,24 +5,22 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Button
-import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.PopupWindow
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import android.graphics.Color
 import androidx.core.content.ContextCompat
+import android.graphics.Color
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.myapplication.dataprocess.DataInitHelper
-import com.example.myapplication.dataprocess.UserManager
 import com.example.myapplication.dialog.DialogActivity
 import kotlinx.coroutines.launch
 
@@ -70,14 +68,10 @@ class MainActivity : AppCompatActivity() {
         filterHintText = findViewById(R.id.filter_hint_text)
         selectedTagsLayout = findViewById(R.id.selected_tags_layout)
 
-        // 更新欢迎语
-        updateWelcomeMessage()
-
-        // 设置底部导航
-        val btnMy = findViewById<Button>(R.id.btn_my)
-        btnMy.setOnClickListener {
-            val intent = Intent(this, UserProfileActivity::class.java)
-            startActivity(intent)
+        // 设置右上角三点菜单按钮
+        val btnMore = findViewById<ImageView>(R.id.btn_more)
+        btnMore.setOnClickListener {
+            showMorePopup(it)
         }
 
         // 缓存 3 个 Fragment，不销毁、不丢失位置
@@ -181,13 +175,13 @@ class MainActivity : AppCompatActivity() {
         val tagText = TextView(context).apply {
             text = tag
             textSize = 12f
-            setTextColor(0xFF2196F3.toInt())
+            setTextColor(ContextCompat.getColor(context, R.color.primary))
         }
         container.addView(tagText)
 
         val closeBtn = ImageView(context).apply {
             setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
-            setColorFilter(0xFF2196F3.toInt())
+            setColorFilter(ContextCompat.getColor(context, R.color.primary))
             layoutParams = LinearLayout.LayoutParams(dpToPx(14), dpToPx(14)).apply {
                 marginStart = dpToPx(4)
             }
@@ -204,14 +198,39 @@ class MainActivity : AppCompatActivity() {
         return (dp * resources.displayMetrics.density).toInt()
     }
 
-    private fun updateWelcomeMessage() {
-        val welcomeText = findViewById<TextView>(R.id.welcome)
-        val username = UserManager.getCurrentUsername()
-        if (username.isNotEmpty()) {
-            welcomeText.text = "欢迎${username}用户，每次使用都是新的开始"
-        } else {
-            welcomeText.text = "欢迎使用，每次使用都是新的开始"
+    /**
+     * 显示右上角三点菜单 Popup（个人中心入口）
+     */
+    private fun showMorePopup(anchor: View) {
+        val popupView = LayoutInflater.from(this)
+            .inflate(R.layout.popup_main_more, null, false)
+
+        // 创建 PopupWindow
+        val popupWindow = PopupWindow(
+            popupView,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            true
+        ).apply {
+            // 半透明背景（让点击外部区域能关闭）
+            setBackgroundDrawable(android.graphics.drawable.ColorDrawable(Color.TRANSPARENT))
+            elevation = 6f
+            isOutsideTouchable = true
+            isFocusable = true
         }
+
+        // "个人中心" 点击事件
+        val itemProfile = popupView.findViewById<LinearLayout>(R.id.item_profile)
+        itemProfile.setOnClickListener {
+            popupWindow.dismiss()
+            val intent = Intent(this@MainActivity, UserProfileActivity::class.java)
+            startActivity(intent)
+        }
+
+        // 计算显示位置：在按钮下方靠右显示
+        val offsetX = dpToPx(8)
+        val offsetY = dpToPx(4)
+        popupWindow.showAsDropDown(anchor, -offsetX, offsetY, Gravity.END)
     }
 
     // 启动搜索提示文字滚动
@@ -258,10 +277,10 @@ class MainActivity : AppCompatActivity() {
         for (i in channelButtons.indices) {
             val btn = channelButtons[i]
             if (i == selectedPosition) {
-                btn.setTextColor(Color.BLACK)
+                btn.setTextColor(ContextCompat.getColor(this, R.color.primary))
                 btn.setBackgroundResource(R.drawable.bg_channel_btn_selected)
             } else {
-                btn.setTextColor(Color.GRAY)
+                btn.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
                 btn.setBackgroundResource(R.drawable.bg_channel_btn_normal)
             }
         }

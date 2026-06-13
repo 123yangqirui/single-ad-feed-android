@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:text="未检索到相关资源"
         android:textSize="14sp"
-        android:textColor="#999999"
+        android:textColor="@color/text_hint"
         android:gravity="center"/>
 
 </LinearLayout>

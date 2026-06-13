@@ -25,6 +25,7 @@ import android.widget.TextView
 import android.widget.Toast
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.example.myapplication.util.VideoPlaybackManager
 
@@ -429,7 +430,7 @@ class DetailActivity : AppCompatActivity() {
             val labelView = TextView(this).apply {
                 text = label
                 textSize = 12f
-                setTextColor(0xFF2196F3.toInt())
+                setTextColor(ContextCompat.getColor(this@DetailActivity, R.color.primary))
                 setBackgroundResource(R.drawable.bg_item_label)
                 val paddingH = dpToPx(8)
                 val paddingV = dpToPx(4)

@@ -12,6 +12,7 @@ object VideoPlaybackManager {
     private var currentPlayButton: ImageView? = null
     private var currentCoverView: ImageView? = null
     private var proxyCacheServer: HttpProxyCacheServer? = null
+    private var lastPlayState: Boolean = false
 
     private fun getProxy(context: Context): HttpProxyCacheServer {
         if (proxyCacheServer == null) {
@@ -43,7 +44,15 @@ object VideoPlaybackManager {
         coverView: ImageView,
         videoUrl: String
     ) {
+        // 如果点击同一个视频 → 根据当前状态切换：播放/暂停
         if (currentPlayingId == itemId) {
+            if (currentVideoView?.isPlaying == true) {
+                // 当前在播放 → 暂停
+                pauseCurrent()
+            } else {
+                // 当前已暂停 → 恢复播放
+                resumeCurrent()
+            }
             return
         }
 
@@ -81,16 +90,29 @@ object VideoPlaybackManager {
             }
         }
         currentPlayButton?.setImageResource(android.R.drawable.ic_media_play)
+        // 注意：暂停时保留 videoView 仍然可见（保留画面），但按钮图标恢复播放图标
         currentCoverView?.visibility = android.view.View.VISIBLE
-        currentVideoView?.visibility = android.view.View.GONE
+        currentPlayButton?.visibility = android.view.View.VISIBLE
+    }
+
+    fun resumeCurrent() {
+        currentVideoView?.let { videoView ->
+            videoView.resume()
+        }
+        currentPlayButton?.setImageResource(android.R.drawable.ic_media_pause)
+        currentCoverView?.visibility = android.view.View.GONE
+    }
+
+    fun stop() {
+        pauseCurrent()
         currentPlayingId = null
         currentVideoView = null
         currentPlayButton = null
         currentCoverView = null
     }
 
-    fun stop() {
-        pauseCurrent()
+    fun release() {
+        stop()
     }
 
     fun getCurrentPlayingId(): String? = currentPlayingId

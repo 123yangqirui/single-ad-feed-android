@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="32dp"
-    android:background="@drawable/splash_img"
+    android:background="@drawable/backound_3"
     android:gravity="center">
 
     <TextView
@@ -12,7 +12,8 @@
         android:layout_height="wrap_content"
         android:text="欢迎登录"
         android:textSize="28sp"
-        android:textColor="@color/black"
+        android:textColor="@color/text_primary"
+        android:textStyle="bold"
         android:layout_marginBottom="48dp"/>
 
     <EditText
@@ -41,7 +42,7 @@
         android:layout_height="56dp"
         android:text="登录"
         android:textSize="18sp"
-        android:textColor="#2196F3"
+        android:textColor="@color/primary"
         android:background="@drawable/bg_channel_btn_normal"
         android:layout_marginBottom="16dp"/>
 
@@ -51,7 +52,7 @@
         android:layout_height="56dp"
         android:text="新用户注册"
         android:textSize="18sp"
-        android:textColor="#2196F3"
+        android:textColor="@color/primary"
         android:background="@drawable/bg_channel_btn_normal"
         android:layout_marginBottom="16dp"/>
 

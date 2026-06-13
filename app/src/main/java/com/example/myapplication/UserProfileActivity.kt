@@ -11,6 +11,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
@@ -264,7 +265,7 @@ class UserProfileActivity : AppCompatActivity() {
                     val labelView = TextView(itemView.context).apply {
                         text = label
                         textSize = 10f
-                        setTextColor(0xFF2196F3.toInt())
+                        setTextColor(ContextCompat.getColor(itemView.context, R.color.primary))
                         setBackgroundResource(R.drawable.bg_item_label)
                         val paddingH = (6 * itemView.context.resources.displayMetrics.density).toInt()
                         val paddingV = (2 * itemView.context.resources.displayMetrics.density).toInt()

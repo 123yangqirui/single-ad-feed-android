@@ -1,10 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
+    <!-- 系统基础色（保留以兼容） -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- ========== 主题色：青绿/薄荷绿 ========== -->
+    <!-- 主色：中青绿 - 按钮、选中态、强调元素 -->
+    <color name="primary">#3FB8A0</color>
+    <!-- 深主色：按压态、深色标签 -->
+    <color name="primary_dark">#2D8B75</color>
+    <!-- 浅主色：弱强调、背景色 -->
+    <color name="primary_light">#A8E0CE</color>
+    <!-- 极浅主色：容器底色、高亮背景 -->
+    <color name="primary_bg">#E8F5F1</color>
+
+    <!-- ========== 背景色 ========== -->
+    <!-- 页面主背景：带薄荷绿调的浅灰 -->
+    <color name="bg_main">#F0F7F4</color>
+    <!-- 顶部区域背景：略浅于主背景，形成区分 -->
+    <color name="bg_header">#F7FBF9</color>
+    <!-- 卡片背景：纯白 -->
+    <color name="card_bg">#FFFFFF</color>
+
+    <!-- ========== 文字色 ========== -->
+    <!-- 主文字：深绿黑（比纯黑更柔和） -->
+    <color name="text_primary">#2C3E3A</color>
+    <!-- 次文字：薄荷灰 -->
+    <color name="text_secondary">#5A7068</color>
+    <!-- 提示文字：浅薄荷灰 -->
+    <color name="text_hint">#9AA8A2</color>
+
+    <!-- ========== 分割线 & 边框 ========== -->
+    <!-- 分割线：带薄荷绿调 -->
+    <color name="divider">#E0EBE5</color>
+    <!-- 边框：极浅薄荷灰 -->
+    <color name="border_light">#DEE8E2</color>
+
+    <!-- ========== 强调色 ========== -->
+    <!-- 点赞色：暖珊瑚红 -->
+    <color name="accent_like">#FF6B6B</color>
+    <!-- 收藏色：暖金 -->
+    <color name="accent_star">#FFB84D</color>
 </resources>

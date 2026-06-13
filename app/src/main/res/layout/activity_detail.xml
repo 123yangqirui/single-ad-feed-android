@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="@color/bg_main"
     android:fitsSystemWindows="true"
     android:paddingTop="?attr/actionBarSize">
 
@@ -15,7 +15,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:background="#FFFFFF"
+            android:background="@color/bg_header"
             android:elevation="4dp">
 
             <ImageView
@@ -35,7 +35,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:text="详情"
-                android:textColor="#333333"
+                android:textColor="@color/text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
         </RelativeLayout>
@@ -44,7 +44,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="240dp"
-            android:background="#F5F5F5">
+            android:background="@color/primary_bg">
 
             <ImageView
                 android:id="@+id/detailImage"
@@ -122,19 +122,21 @@
             </LinearLayout>
         </RelativeLayout>
 
-        <!-- 内容区域 -->
+        <!-- 内容区域（白色卡片） -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:background="@color/card_bg"
+            android:padding="16dp"
+            android:layout_marginTop="8dp">
 
             <!-- 标题 -->
             <TextView
                 android:id="@+id/detailTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="#222222"
+                android:textColor="@color/text_primary"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp" />
@@ -153,7 +155,7 @@
                 android:id="@+id/detailDesc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="#666666"
+                android:textColor="@color/text_secondary"
                 android:textSize="15sp"
                 android:lineSpacingExtra="4dp"
                 android:layout_marginBottom="16dp" />
@@ -162,7 +164,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#EEEEEE"
+                android:background="@color/divider"
                 android:layout_marginBottom="16dp" />
 
             <!-- 详情内容标题 -->
@@ -170,7 +172,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="详细内容"
-                android:textColor="#333333"
+                android:textColor="@color/text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="10dp" />
@@ -180,7 +182,7 @@
                 android:id="@+id/detailContent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="#444444"
+                android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 android:lineSpacingExtra="6dp" />
 
@@ -188,7 +190,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#EEEEEE"
+                android:background="@color/divider"
                 android:layout_marginTop="16dp" />
 
             <!-- 操作栏 -->
@@ -223,7 +225,7 @@
                         android:layout_height="wrap_content"
                         android:text="0"
                         android:textSize="14sp"
-                        android:textColor="#666666"
+                        android:textColor="@color/text_secondary"
                         android:layout_marginStart="4dp" />
                 </LinearLayout>
 
@@ -251,7 +253,7 @@
                         android:layout_height="wrap_content"
                         android:text="0"
                         android:textSize="14sp"
-                        android:textColor="#666666"
+                        android:textColor="@color/text_secondary"
                         android:layout_marginStart="4dp" />
                 </LinearLayout>
 

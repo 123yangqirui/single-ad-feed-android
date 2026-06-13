@@ -11,6 +11,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.VideoView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -306,7 +307,7 @@ class FeedAdapter : ListAdapter<AdItem, RecyclerView.ViewHolder>(diffCallback) {
             videoView.setOnCompletionListener {
                 // 播放完成后回到开头并显示封面
                 videoView.seekTo(0)
-                VideoPlaybackManager.pauseCurrent()
+                VideoPlaybackManager.stop()
             }
         }
 
@@ -339,10 +340,10 @@ class FeedAdapter : ListAdapter<AdItem, RecyclerView.ViewHolder>(diffCallback) {
                 textSize = 11f
                 // 选中状态用不同颜色
                 if (isSelected) {
-                    setTextColor(0xFFFFFFFF.toInt())
-                    setBackgroundColor(0xFF2196F3.toInt())
+                    setTextColor(ContextCompat.getColor(container.context, R.color.white))
+                    setBackgroundColor(ContextCompat.getColor(container.context, R.color.primary))
                 } else {
-                    setTextColor(0xFF2196F3.toInt())
+                    setTextColor(ContextCompat.getColor(container.context, R.color.primary))
                     setBackgroundResource(R.drawable.bg_item_label)
                 }
                 val paddingH = dpToPx(6, container.context)

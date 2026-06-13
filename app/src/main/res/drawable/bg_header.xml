@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!-- 顶部区域：极浅薄荷绿 → 白色渐变，与下方信息流形成柔和区分 -->
+    <gradient
+        android:angle="270"
+        android:startColor="@color/bg_header"
+        android:endColor="@color/bg_main"/>
+</shape>
