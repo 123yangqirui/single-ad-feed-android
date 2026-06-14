@@ -10,7 +10,7 @@ import android.content.Context
 @Database(
     entities = [AdItem::class, User::class],
     version = 3,
-    exportSchema = false
+    exportSchema = true
 )
 @TypeConverters(ListConverter::class)
 abstract class AppDatabase : RoomDatabase() {

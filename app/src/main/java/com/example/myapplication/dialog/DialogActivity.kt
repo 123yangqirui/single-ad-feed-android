@@ -116,7 +116,7 @@ class DialogActivity : AppCompatActivity() {
     /**
      * 发送消息
      */
-    private fun sendMessage() {
+    private fun  sendMessage() {
         val content = messageInput.text.toString().trim()
         if (content.isEmpty() || isSending) return
 

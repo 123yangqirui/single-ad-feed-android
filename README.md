@@ -1,186 +1,401 @@
 # My Application
 
-一个基于 Android 平台的智能内容推荐应用，集成 AI 对话功能和内容检索能力。
+一个基于 Android / Kotlin 的智能广告信息流应用。项目围绕“内容推荐 + 本地数据管理 + AI 对话检索”展开，提供登录注册、三频道广告流、图文/视频内容展示、标签过滤、详情页互动、个人中心和 DeepSeek 智能检索等功能。
 
 ---
 
-## 🌟 醒目介绍
+## 一、项目介绍
 
-### 项目简介
+### 1.1 项目定位
 
-**My Application** 是一款现代化的 Android 内容推荐应用，具备以下核心特性：
+**My Application** 是一个面向 Android 平台的广告内容推荐 Demo 应用。它通过本地 Room 数据库存储广告内容和用户数据，在首页以信息流形式展示不同频道的广告，同时集成 DeepSeek API，让用户可以通过自然语言搜索广告内容。
 
-- **多频道内容展示**：支持三个独立频道的内容浏览，通过 ViewPager2 实现流畅的页面切换
-- **智能搜索与 AI 对话**：集成 DeepSeek 大模型，支持自然语言查询和智能内容检索
-- **内容过滤系统**：基于标签的内容过滤机制，帮助用户精准定位感兴趣的内容
-- **本地数据持久化**：使用 Room 数据库实现本地数据存储，支持离线浏览
-- **多媒体内容支持**：支持图片和视频内容的展示与播放
+项目适合作为以下场景的学习或展示案例：
 
-### 技术亮点
+- Android 原生页面开发
+- RecyclerView 多类型列表
+- ViewPager2 多频道信息流
+- Room 本地数据库持久化
+- Kotlin 协程异步处理
+- Retrofit / OkHttp 网络请求
+- AI 对话与本地检索结合
+- 图文、视频混合内容展示
 
-| 特性 | 技术实现 |
-|------|----------|
-| 架构模式 | MVVM + Repository Pattern |
+### 1.2 核心功能
+
+| 功能 | 说明 |
+| --- | --- |
+| 登录注册 | 用户可在启动页注册或登录，用户数据保存在本地 Room 数据库中。 |
+| 三频道信息流 | 首页使用 `ViewPager2` 管理三个频道，支持按钮点击和左右滑动切换。 |
+| 多类型广告卡片 | 列表支持大图、小图、视频三种广告样式，并通过不同布局展示。 |
+| 分页加载 | 每次加载 11 条数据，滚动到列表底部附近自动加载下一页。 |
+| 下拉刷新 | 每个频道支持下拉刷新，刷新后重新加载当前频道内容。 |
+| 标签过滤 | 点击广告标签可筛选包含该标签的内容，已选标签会展示在首页顶部。 |
+| 详情页 | 展示广告完整内容，支持点赞、收藏、分享、视频播放、静音、进度拖动和全屏。 |
+| 状态同步 | 从详情页返回后，列表中的点赞、收藏状态和数量会同步更新。 |
+| 个人中心 | 展示当前用户的浏览历史、点赞列表和收藏列表，支持退出登录。 |
+| AI 对话检索 | 用户可输入自然语言，DeepSeek 返回检索方式后，应用查询本地广告数据并展示结果。 |
+| 本地 Mock 数据 | 首次运行时自动初始化广告数据，无需后端服务即可体验主要功能。 |
+
+### 1.3 技术栈
+
+| 类型 | 技术 |
+| --- | --- |
+| 开发语言 | Kotlin |
+| 构建工具 | Gradle Kotlin DSL |
+| Android 插件 | Android Gradle Plugin 9.2.1 |
+| UI 体系 | XML Layout、AppCompat、Material Components、ConstraintLayout |
+| 列表组件 | RecyclerView、ListAdapter、DiffUtil |
+| 页面切换 | ViewPager2、Fragment |
 | 数据库 | Room 2.6.1 |
-| 网络请求 | Retrofit 2.9.0 + OkHttp 4.12.0 |
+| 异步处理 | Kotlin Coroutines |
 | 图片加载 | Glide 4.16.0 |
+| 视频播放 | VideoView |
 | 视频缓存 | VideoCache 2.7.1 |
-| 页面导航 | ViewPager2 + Fragment |
-| AI 集成 | DeepSeek API |
+| 网络请求 | Retrofit 2.9.0、OkHttp 4.12.0 |
+| JSON 解析 | Gson |
+| AI 服务 | DeepSeek API |
+
+### 1.4 整体流程
+
+```text
+LoginActivity
+    |
+    v
+MainActivity
+    |
+    +-- ViewPager2
+    |     +-- Channel_1 -> BaseChannelFragment(channelType = 0)
+    |     +-- Channel_2 -> BaseChannelFragment(channelType = 1)
+    |     +-- Channel_3 -> BaseChannelFragment(channelType = 2)
+    |
+    +-- DialogActivity -> AiClient -> DeepSeek API
+    |                  -> SearchService -> Room
+    |
+    +-- UserProfileActivity
+
+BaseChannelFragment -> FeedAdapter -> DetailActivity
+DetailActivity -> AdItemDao / UserManager
+```
+
+### 1.5 数据模型
+
+项目主要使用两个 Room 实体：
+
+| 实体 | 表名 | 说明 |
+| --- | --- | --- |
+| `AdItem` | `ad_items` | 广告内容表，保存标题、简介、详情、标签、图片、视频、频道、点赞收藏状态等。 |
+| `User` | `users` | 用户表，保存用户名、密码、浏览历史、点赞列表、收藏列表和偏好标签。 |
+
+`DataInitHelper.initTestData()` 会在首页初始化时检查数据库。如果广告表为空，会自动插入内置 Mock 数据。
 
 ---
 
-## 🚀 如何运行
+## 二、如何运行
 
-### 环境要求
+### 2.1 环境要求
 
-- **Android Studio**：Giraffe (2022.3.1) 或更高版本
-- **JDK 版本**：11+
-- **Gradle 版本**：8.5+
-- **最低 SDK**：API 24 (Android 7.0)
-- **目标 SDK**：API 36 (Android 15)
+| 环境 | 要求 |
+| --- | --- |
+| Android Studio | 建议使用较新稳定版 |
+| JDK | 11 或更高版本 |
+| Gradle | 使用项目自带 Gradle Wrapper |
+| minSdk | 24 |
+| targetSdk | 36 |
+| compileSdk | 36 |
 
-### 配置步骤
-
-1. **克隆项目**
+### 2.2 获取项目
 
 ```bash
 git clone https://github.com/123yangqirui/single-ad-feed-android.git
 cd single-ad-feed-android
 ```
 
-2. **配置 API Key**
+如果你是直接使用当前本地项目，可以跳过克隆步骤，直接用 Android Studio 打开项目根目录。
 
-在项目根目录创建 `local.properties` 文件，并添加您的 DeepSeek API Key：
+### 2.3 配置 API Key
+
+项目通过 `local.properties` 读取 DeepSeek API Key。请在项目根目录创建或修改 `local.properties`：
 
 ```properties
-# local.properties
 DEEPSEEK_API_KEY=your_api_key_here
 ```
 
-> **获取 API Key**：访问 [DeepSeek Console](https://platform.deepseek.com/) 注册账号并获取 API Key
+说明：
 
-3. **同步项目**
+- `local.properties` 只用于本地环境配置，不应提交真实 API Key。
+- 不配置 API Key 时，登录、首页、详情页、个人中心、本地 Mock 数据等功能仍可运行。
+- AI 对话功能需要有效的 DeepSeek API Key 才能正常请求。
 
-打开 Android Studio，导入项目后等待 Gradle 同步完成。
+### 2.4 Android Studio 运行
 
-### 运行项目
+1. 打开 Android Studio。
+2. 选择 `Open`，打开项目根目录。
+3. 等待 Gradle Sync 完成。
+4. 启动模拟器或连接 Android 真机。
+5. 选择 `app` 运行配置。
+6. 点击 `Run` 启动应用。
 
-1. 连接 Android 设备或启动模拟器
-2. 在 Android Studio 中点击 **Run** 按钮（绿色三角形）
-3. 选择目标设备后等待应用安装启动
+### 2.5 命令行构建
 
-### Mock 数据
+macOS / Linux：
 
-项目已内置 Mock 数据，无需额外配置即可运行：
-- `app\src\main\java\com\example\myapplication\dataprocess\DataInitHelper.kt` - 数据初始化助手，负责初始化数据库和插入 Mock 数据
-
----
-
-## 📦 模块划分
-
-```
-app/src/main/java/com/example/myapplication/
-├── channels/          # 频道模块
-│   ├── Channel_1.kt   # 频道 1 Fragment
-│   ├── Channel_2.kt   # 频道 2 Fragment
-│   └── Channel_3.kt   # 频道 3 Fragment
-├── dataprocess/       # 数据处理模块
-│   ├── AdItem.kt      # 广告数据模型
-│   ├── AdItemDao.kt   # 数据访问接口
-│   ├── AppDatabase.kt # 数据库配置
-│   ├── DataInitHelper.kt # 数据初始化助手
-│   ├── ListConverter.kt  # 类型转换器
-│   ├── MyApplication.kt  # 应用入口
-│   └── UserDao.kt     # 用户数据访问接口
-├── dialog/            # 对话模块
-│   ├── AiClient.kt    # AI 客户端
-│   ├── AiResponse.kt  # AI 响应模型
-│   ├── AiService.kt   # AI 服务接口
-│   ├── DialogActivity.kt  # 对话页面
-│   ├── Message.kt     # 消息模型
-│   ├── MessageAdapter.kt  # 消息列表适配器
-│   └── SearchService.kt   # 搜索服务
-├── ui/theme/          # UI 主题配置
-│   ├── Color.kt       # 颜色定义
-│   ├── Theme.kt       # 主题配置
-│   └── Type.kt        # 字体样式
-├── util/              # 工具模块
-│   └── VideoPlaybackManager.kt  # 视频播放管理
-├── BaseChannelFragment.kt   # 频道 Fragment 基类
-├── ChannelPagerAdapter.kt   # ViewPager2 适配器
-├── DetailActivity.kt        # 详情页面
-├── FeedAdapter.kt           # 内容列表适配器
-├── FilterManager.kt         # 过滤器管理器
-├── LoginActivity.kt         # 登录页面
-├── MainActivity.kt          # 主页面
-└── UserProfileActivity.kt   # 用户个人中心
+```bash
+./gradlew assembleDebug
 ```
 
-### 模块职责说明
+Windows PowerShell：
 
-| 模块 | 职责 | 核心文件 |
-|------|------|----------|
-| **channels** | 内容频道展示 | Channel_1/2/3.kt |
-| **dataprocess** | 数据持久化与管理 | AppDatabase.kt, AdItemDao.kt |
-| **dialog** | AI 对话与搜索 | AiClient.kt, SearchService.kt |
-| **ui/theme** | 主题与样式配置 | Color.kt, Theme.kt |
-| **util** | 工具类 | VideoPlaybackManager.kt |
+```powershell
+.\gradlew.bat assembleDebug
+```
 
----
+构建成功后，Debug APK 通常位于：
 
-## 📋 开发规范
+```text
+app/build/outputs/apk/debug/
+```
 
-### 代码风格
+### 2.6 常用命令
 
-1. **命名规范**
-   - 类名：采用 PascalCase，如 `MainActivity`
-   - 方法名：采用 camelCase，如 `setupSearchBox`
-   - 变量名：采用 camelCase，如 `searchHintText`
-   - 常量名：采用 UPPER_CASE，如 `MAX_ITEMS`
-   - 资源文件：采用 snake_case，如 `bg_channel_btn_selected.xml`
+macOS / Linux：
 
-2. **代码结构**
-   - 每个类职责单一，遵循 SRP 原则
-   - 方法长度不超过 50 行
-   - 使用 Kotlin 特性：空安全、扩展函数、协程
+```bash
+# 构建 Debug 包
+./gradlew assembleDebug
 
-### 架构规范
+# 运行本地单元测试
+./gradlew test
 
-1. **分层架构**
-   - **UI 层**：Activity/Fragment/Adapter，负责界面展示和用户交互
-   - **数据层**：Repository/Dao，负责数据存取
-   - **业务层**：Service/Manager，负责业务逻辑处理
+# 运行 Android 仪器测试
+./gradlew connectedAndroidTest
+```
 
-2. **数据流向**
-   - 单向数据流：UI → ViewModel → Repository → DataSource
-   - 使用 Coroutine 处理异步操作
-   - 使用 LiveData/Flow 进行数据观察
+Windows PowerShell：
 
-### 资源管理
+```powershell
+# 构建 Debug 包
+.\gradlew.bat assembleDebug
 
-1. **资源命名**
-   - 布局文件：`activity_*.xml`, `fragment_*.xml`, `item_*.xml`
-   - 动画文件：`anim_*.xml`
-   - 样式文件：`style_*.xml`, `theme_*.xml`
+# 运行本地单元测试
+.\gradlew.bat test
 
-2. **资源组织**
-   - 图片资源按功能分类存放
-   - Drawable 资源使用 Vector 格式优先
-   - 颜色和字符串统一在 `res/values/` 中管理
+# 运行 Android 仪器测试
+.\gradlew.bat connectedAndroidTest
+```
+
+### 2.7 首次运行说明
+
+首次进入首页时，项目会执行数据初始化：
+
+```text
+MainActivity -> DataInitHelper.initTestData() -> Room(ad_database)
+```
+
+如果数据库中没有广告数据，会插入内置 Mock 数据；如果已有数据，则不会重复插入。开发阶段数据库版本不匹配时，`AppDatabase` 使用 `fallbackToDestructiveMigration()` 自动重建数据库。
 
 ---
 
-## 📄 License
+## 三、模块划分
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+### 3.1 根目录结构
+
+```text
+.
+├── app/                         # Android 应用主模块
+├── gradle/                      # Gradle Wrapper 和版本管理文件
+├── build.gradle.kts             # 根项目构建配置
+├── settings.gradle.kts          # 项目名称、模块和仓库配置
+├── gradle.properties            # Gradle 全局属性
+├── local.properties             # 本地配置，存放 SDK 路径和 API Key
+└── README.md                    # 项目说明文档
+```
+
+### 3.2 app 模块结构
+
+```text
+app/src/main/
+├── AndroidManifest.xml
+├── java/com/example/myapplication/
+│   ├── LoginActivity.kt
+│   ├── MainActivity.kt
+│   ├── DetailActivity.kt
+│   ├── UserProfileActivity.kt
+│   ├── BaseChannelFragment.kt
+│   ├── ChannelPagerAdapter.kt
+│   ├── FeedAdapter.kt
+│   ├── FilterManager.kt
+│   ├── channels/
+│   ├── dataprocess/
+│   ├── dialog/
+│   ├── ui/theme/
+│   └── util/
+└── res/
+    ├── layout/
+    ├── drawable/
+    ├── anim/
+    ├── values/
+    ├── mipmap-*/
+    └── xml/
+```
+
+### 3.3 页面模块
+
+| 文件 | 职责 |
+| --- | --- |
+| `LoginActivity.kt` | 应用启动页，负责用户登录和注册。 |
+| `MainActivity.kt` | 首页，负责频道切换、搜索入口、标签状态展示和右上角菜单。 |
+| `DetailActivity.kt` | 详情页，展示广告完整内容，处理点赞、收藏、分享和视频控制。 |
+| `UserProfileActivity.kt` | 个人中心，展示浏览历史、点赞列表、收藏列表和退出登录。 |
+| `DialogActivity.kt` | AI 对话页，负责消息列表、用户输入、AI 响应和搜索结果展示。 |
+
+### 3.4 频道与信息流模块
+
+| 文件 / 目录 | 职责 |
+| --- | --- |
+| `channels/Channel_1.kt` | 频道 1 Fragment，传入 `channelType = 0`。 |
+| `channels/Channel_2.kt` | 频道 2 Fragment，传入 `channelType = 1`。 |
+| `channels/Channel_3.kt` | 频道 3 Fragment，传入 `channelType = 2`。 |
+| `BaseChannelFragment.kt` | 频道公共基类，封装列表初始化、刷新、分页、过滤和跳转详情。 |
+| `ChannelPagerAdapter.kt` | `ViewPager2` 的 Fragment 适配器，负责创建三个频道。 |
+| `FeedAdapter.kt` | 信息流列表适配器，支持大图、小图、视频、底部提示等 ViewType。 |
+| `FilterManager.kt` | 标签过滤状态管理，负责维护已选标签并通知监听者刷新列表。 |
+
+### 3.5 数据模块
+
+目录：`app/src/main/java/com/example/myapplication/dataprocess/`
+
+| 文件 | 职责 |
+| --- | --- |
+| `AdItem.kt` | 定义 `AdItem` 广告实体和 `User` 用户实体。 |
+| `AdItemDao.kt` | 广告数据访问接口，包含分页查询、按频道查询、点赞收藏更新等方法。 |
+| `UserDao.kt` | 用户数据访问接口，包含查询、插入、更新、删除和用户名校验。 |
+| `AppDatabase.kt` | Room 数据库配置，数据库名为 `ad_database`。 |
+| `DataInitHelper.kt` | 初始化本地 Mock 广告数据。 |
+| `ListConverter.kt` | Room 类型转换器，将 `List<String>` 与 JSON 字符串互转。 |
+| `UserManager` | 当前定义在 `ListConverter.kt` 中，负责当前用户状态、登录注册、浏览历史、点赞和收藏。 |
+
+### 3.6 AI 对话与搜索模块
+
+目录：`app/src/main/java/com/example/myapplication/dialog/`
+
+| 文件 | 职责 |
+| --- | --- |
+| `DialogActivity.kt` | 对话页面，负责发送消息、展示 AI 回复和搜索结果。 |
+| `Message.kt` | 消息数据模型和消息类型定义。 |
+| `MessageAdapter.kt` | 对话消息列表适配器，支持用户消息、AI 消息和带搜索结果的 AI 消息。 |
+| `AiClient.kt` | DeepSeek API 客户端，负责构造提示词、发送请求和解析响应。 |
+| `AiService.kt` | Retrofit 接口定义。 |
+| `AiResponse.kt` | AI 返回结构定义。 |
+| `SearchService.kt` | 本地数据库检索服务，根据 AI 返回的方法和标签查询广告。 |
+
+AI 检索支持的方法：
+
+| 方法 | 说明 |
+| --- | --- |
+| `searchByTag` | 根据单个标签检索广告。 |
+| `searchByMultipleTags` | 根据多个标签检索广告。 |
+| `searchByChannel` | 根据频道编号检索广告。 |
+| `searchByKeyword` | 根据关键词检索标题、简介和详情内容。 |
+| `none` | 不执行数据库检索，仅展示 AI 回复。 |
+
+### 3.7 工具与资源模块
+
+| 路径 / 文件 | 职责 |
+| --- | --- |
+| `util/VideoPlaybackManager.kt` | 统一管理列表视频播放、暂停、恢复和缓存代理。 |
+| `ui/theme/` | Compose 主题相关文件，当前项目主要页面仍使用 XML。 |
+| `res/layout/` | Activity、Fragment、列表项、弹窗、对话页布局。 |
+| `res/drawable/` | 背景、按钮样式、图标、图片资源。 |
+| `res/anim/` | 页面切换、弹窗、按钮缩放等动画。 |
+| `res/values/` | 颜色、字符串、主题等资源。 |
+| `res/xml/` | 备份和数据导出规则。 |
 
 ---
 
-## 🤝 贡献
+## 四、开发规范
 
-欢迎提交 Issue 和 Pull Request！
+### 4.1 命名规范
 
----
+| 类型 | 规范 | 示例 |
+| --- | --- | --- |
+| 类名 | PascalCase | `MainActivity`、`FeedAdapter` |
+| 方法名 | camelCase | `loadNextPage()`、`updateButtonState()` |
+| 变量名 | camelCase | `currentHintIndex`、`selectedTagsLayout` |
+| 常量名 | UPPER_SNAKE_CASE | `EXTRA_TITLE`、`EXTRA_ID` |
+| XML 布局 | snake_case | `activity_main.xml`、`item_video.xml` |
+| Drawable 资源 | snake_case | `bg_channel_btn_selected.xml` |
+| 动画资源 | snake_case | `slide_in_right.xml` |
 
-*Made with ❤️ for Android Development*
+### 4.2 代码组织规范
+
+- Activity 只负责页面绑定、用户交互和页面跳转，复杂逻辑尽量拆到 Manager、Service 或 Adapter。
+- Fragment 负责频道页面生命周期和列表数据加载。
+- Adapter 只负责列表项展示、点击事件分发和局部 UI 状态更新。
+- DAO 只负责数据库访问，不承载业务规则。
+- Service 负责可复用业务逻辑，例如 AI 搜索、本地检索。
+- 工具类放入 `util/`，避免散落在页面类中。
+- 新增实体或数据库字段时，需要同步更新 Room 版本号和迁移策略。
+
+### 4.3 UI 与资源规范
+
+- 页面布局统一放在 `res/layout/`。
+- 可复用背景、按钮样式、标签样式放在 `res/drawable/`。
+- 颜色统一维护在 `res/values/colors.xml`。
+- 字符串建议逐步收敛到 `res/values/strings.xml`，减少硬编码。
+- 列表项布局使用 `item_` 前缀，例如 `item_big_image.xml`。
+- Activity 布局使用 `activity_` 前缀，例如 `activity_detail.xml`。
+- Fragment 布局使用 `fragment_` 前缀，例如 `fragment_channel_list.xml`。
+- 动画资源放在 `res/anim/`，命名体现方向和用途。
+
+### 4.4 数据库开发规范
+
+- 所有广告内容相关查询放在 `AdItemDao`。
+- 所有用户相关查询放在 `UserDao`。
+- 数据库实体字段变更后，需要关注数据库版本升级。
+- 对 `List<String>` 等复杂字段，应通过 `TypeConverter` 统一转换。
+- 不建议在 UI 主线程直接执行数据库耗时操作，应使用 `Dispatchers.IO`。
+
+### 4.5 异步与生命周期规范
+
+- 页面相关异步任务优先使用 `lifecycleScope`。
+- 数据库和网络请求应切换到 `Dispatchers.IO`。
+- 避免在新增代码中继续扩大 `GlobalScope` 的使用范围。
+- Activity / Fragment 销毁时，应停止定时任务、视频播放和无效回调。
+- 视频播放状态应通过 `VideoPlaybackManager` 统一管理，避免多个视频同时播放。
+
+### 4.6 AI 接入规范
+
+- API Key 只从 `local.properties` 读取，不要硬编码在 Kotlin 文件中。
+- `AiClient` 负责网络请求和响应解析。
+- `SearchService` 负责本地检索，不直接处理 UI。
+- AI 返回内容应容错处理：JSON 解析失败时，需要给用户展示友好提示。
+- 新增搜索方式时，需要同时更新提示词、`AiResponse` 约定和 `SearchService.executeSearch()`。
+
+### 4.7 Git 与提交规范
+
+建议提交信息使用清晰的动词开头，例如：
+
+```text
+feat: add AI search result cards
+fix: sync like state after detail page returns
+docs: improve README structure
+refactor: extract user state manager
+```
+
+提交前建议检查：
+
+- 项目能否正常构建。
+- README 是否与实际代码一致。
+- 是否误提交了真实 API Key、构建产物或本地 IDE 配置。
+- 是否影响已有登录、首页、详情、个人中心和 AI 搜索流程。
+
+### 4.8 后续优化建议
+
+- 将 `UserManager` 从 `ListConverter.kt` 拆分为独立文件。
+- 将 `GlobalScope` 逐步替换为生命周期感知的协程作用域。
+- 为 Room 数据库补充正式 Migration。
+- 将硬编码字符串逐步迁移到 `strings.xml`。
+- 为搜索、标签过滤、点赞收藏状态同步补充单元测试。
+- 对 AI 返回 JSON 增加更严格的字段校验和错误兜底。
+

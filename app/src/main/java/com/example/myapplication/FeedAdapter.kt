@@ -57,7 +57,27 @@ class FeedAdapter : ListAdapter<AdItem, RecyclerView.ViewHolder>(diffCallback) {
     private var showFooter = false
 
     fun setShowFooter(show: Boolean) {
-        showFooter = show
+        if (showFooter != show) {
+            showFooter = show
+            notifyDataSetChanged()
+        }
+    }
+
+    /**
+     * 原子地更新数据列表和 footer 状态。
+     * 由于 showFooter 会改变 getItemCount()，必须与 submitList 作为一个整体提交给 RecyclerView，
+     * 否则在 layout 过程中会出现 "Inconsistency detected" 崩溃。
+     */
+    fun submitListAndFooter(list: List<AdItem>, showFooterValue: Boolean) {
+        // 如果 footer 状态没变化，走标准 diff 流程（有动画）
+        if (showFooter == showFooterValue) {
+            submitList(list)
+            return
+        }
+        showFooter = showFooterValue
+        // footer 状态改变会改变 itemCount，需要整体刷新以保证 RecyclerView 状态一致
+        submitList(list)
+        notifyDataSetChanged()
     }
 
     override fun getItemCount(): Int {
@@ -128,31 +148,33 @@ class FeedAdapter : ListAdapter<AdItem, RecyclerView.ViewHolder>(diffCallback) {
                 .into(image)
             bindLabels(labelContainer, item.label)
 
-            // 设置点赞状态
-            updateLikeState(item)
-            // 设置收藏状态
-            updateStarState(item)
+            // 根据当前用户的点赞/收藏列表设置状态
+            val user = UserManager.getCurrentUser()
+            val isLiked = user?.likeList?.contains(item.id) ?: false
+            val isStarred = user?.starList?.contains(item.id) ?: false
+            updateLikeState(isLiked, item.likeCount)
+            updateStarState(isStarred, item.starCount)
 
             // 点赞按钮
             likeBtn.setOnClickListener {
-                item.like = !item.like
-                item.likeCount += if (item.like) 1 else -1
-                updateLikeState(item)
-                // 添加点击动画（放在状态更新之后）
+                val newLiked = !isUserLiked(item.id)
+                val newCount = item.likeCount + if (newLiked) 1 else -1
+                updateLikeState(newLiked, newCount)
+                item.like = newLiked
+                item.likeCount = newCount
                 animateButton(likeBtn)
-                // 保存到数据库
-                saveLikeToDatabase(item.id, item.like, item.likeCount)
+                saveLikeToDatabase(item.id, newLiked, newCount)
             }
 
             // 收藏按钮
             starBtn.setOnClickListener {
-                item.star = !item.star
-                item.starCount += if (item.star) 1 else -1
-                updateStarState(item)
-                // 添加点击动画（放在状态更新之后）
+                val newStarred = !isUserStarred(item.id)
+                val newCount = item.starCount + if (newStarred) 1 else -1
+                updateStarState(newStarred, newCount)
+                item.star = newStarred
+                item.starCount = newCount
                 animateButton(starBtn)
-                // 保存到数据库
-                saveStarToDatabase(item.id, item.star, item.starCount)
+                saveStarToDatabase(item.id, newStarred, newCount)
             }
 
             // 点击事件（排除按钮区域）
@@ -161,15 +183,23 @@ class FeedAdapter : ListAdapter<AdItem, RecyclerView.ViewHolder>(diffCallback) {
             }
         }
 
-        private fun updateLikeState(item: AdItem) {
-            likeBtn.setColorFilter((if (item.like) 0xFFFF4081 else 0xFF999999).toInt(), PorterDuff.Mode.SRC_IN)
-            likeCount.text = formatCount(item.likeCount)
+        private fun updateLikeState(isLiked: Boolean, count: Int) {
+            likeBtn.setColorFilter((if (isLiked) 0xFFFF4081 else 0xFF999999).toInt(), PorterDuff.Mode.SRC_IN)
+            likeCount.text = formatCount(count)
         }
 
-        private fun updateStarState(item: AdItem) {
-            starBtn.setColorFilter((if (item.star) 0xFFFFD700 else 0xFF999999).toInt(), PorterDuff.Mode.SRC_IN)
-            starCount.text = formatCount(item.starCount)
+        private fun updateStarState(isStarred: Boolean, count: Int) {
+            starBtn.setColorFilter((if (isStarred) 0xFFFFD700 else 0xFF999999).toInt(), PorterDuff.Mode.SRC_IN)
+            starCount.text = formatCount(count)
         }
+    }
+
+    private fun isUserLiked(itemId: String): Boolean {
+        return UserManager.getCurrentUser()?.likeList?.contains(itemId) ?: false
+    }
+
+    private fun isUserStarred(itemId: String): Boolean {
+        return UserManager.getCurrentUser()?.starList?.contains(itemId) ?: false
     }
 
     // 小图
@@ -194,31 +224,33 @@ class FeedAdapter : ListAdapter<AdItem, RecyclerView.ViewHolder>(diffCallback) {
                 .into(image)
             bindLabels(labelContainer, item.label)
 
-            // 设置点赞状态
-            updateLikeState(item)
-            // 设置收藏状态
-            updateStarState(item)
+            // 根据当前用户的点赞/收藏列表设置状态
+            val user = UserManager.getCurrentUser()
+            val isLiked = user?.likeList?.contains(item.id) ?: false
+            val isStarred = user?.starList?.contains(item.id) ?: false
+            updateLikeState(isLiked, item.likeCount)
+            updateStarState(isStarred, item.starCount)
 
             // 点赞按钮
             likeBtn.setOnClickListener {
-                item.like = !item.like
-                item.likeCount += if (item.like) 1 else -1
-                updateLikeState(item)
-                // 添加点击动画（放在状态更新之后）
+                val newLiked = !isUserLiked(item.id)
+                val newCount = item.likeCount + if (newLiked) 1 else -1
+                updateLikeState(newLiked, newCount)
+                item.like = newLiked
+                item.likeCount = newCount
                 animateButton(likeBtn)
-                // 保存到数据库
-                saveLikeToDatabase(item.id, item.like, item.likeCount)
+                saveLikeToDatabase(item.id, newLiked, newCount)
             }
 
             // 收藏按钮
             starBtn.setOnClickListener {
-                item.star = !item.star
-                item.starCount += if (item.star) 1 else -1
-                updateStarState(item)
-                // 添加点击动画（放在状态更新之后）
+                val newStarred = !isUserStarred(item.id)
+                val newCount = item.starCount + if (newStarred) 1 else -1
+                updateStarState(newStarred, newCount)
+                item.star = newStarred
+                item.starCount = newCount
                 animateButton(starBtn)
-                // 保存到数据库
-                saveStarToDatabase(item.id, item.star, item.starCount)
+                saveStarToDatabase(item.id, newStarred, newCount)
             }
 
             // 点击事件
@@ -227,14 +259,14 @@ class FeedAdapter : ListAdapter<AdItem, RecyclerView.ViewHolder>(diffCallback) {
             }
         }
 
-        private fun updateLikeState(item: AdItem) {
-            likeBtn.setColorFilter((if (item.like) 0xFFFF4081 else 0xFF999999).toInt(), PorterDuff.Mode.SRC_IN)
-            likeCount.text = formatCount(item.likeCount)
+        private fun updateLikeState(isLiked: Boolean, count: Int) {
+            likeBtn.setColorFilter((if (isLiked) 0xFFFF4081 else 0xFF999999).toInt(), PorterDuff.Mode.SRC_IN)
+            likeCount.text = formatCount(count)
         }
 
-        private fun updateStarState(item: AdItem) {
-            starBtn.setColorFilter((if (item.star) 0xFFFFD700 else 0xFF999999).toInt(), PorterDuff.Mode.SRC_IN)
-            starCount.text = formatCount(item.starCount)
+        private fun updateStarState(isStarred: Boolean, count: Int) {
+            starBtn.setColorFilter((if (isStarred) 0xFFFFD700 else 0xFF999999).toInt(), PorterDuff.Mode.SRC_IN)
+            starCount.text = formatCount(count)
         }
     }
 
@@ -290,31 +322,33 @@ class FeedAdapter : ListAdapter<AdItem, RecyclerView.ViewHolder>(diffCallback) {
                 }
             }
 
-            // 设置点赞状态
-            updateLikeState(item)
-            // 设置收藏状态
-            updateStarState(item)
+            // 根据当前用户的点赞/收藏列表设置状态
+            val user = UserManager.getCurrentUser()
+            val isLiked = user?.likeList?.contains(item.id) ?: false
+            val isStarred = user?.starList?.contains(item.id) ?: false
+            updateLikeState(isLiked, item.likeCount)
+            updateStarState(isStarred, item.starCount)
 
             // 点赞按钮
             likeBtn.setOnClickListener {
-                item.like = !item.like
-                item.likeCount += if (item.like) 1 else -1
-                updateLikeState(item)
-                // 添加点击动画（放在状态更新之后）
+                val newLiked = !isUserLiked(item.id)
+                val newCount = item.likeCount + if (newLiked) 1 else -1
+                updateLikeState(newLiked, newCount)
+                item.like = newLiked
+                item.likeCount = newCount
                 animateButton(likeBtn)
-                // 保存到数据库
-                saveLikeToDatabase(item.id, item.like, item.likeCount)
+                saveLikeToDatabase(item.id, newLiked, newCount)
             }
 
             // 收藏按钮
             starBtn.setOnClickListener {
-                item.star = !item.star
-                item.starCount += if (item.star) 1 else -1
-                updateStarState(item)
-                // 添加点击动画（放在状态更新之后）
+                val newStarred = !isUserStarred(item.id)
+                val newCount = item.starCount + if (newStarred) 1 else -1
+                updateStarState(newStarred, newCount)
+                item.star = newStarred
+                item.starCount = newCount
                 animateButton(starBtn)
-                // 保存到数据库
-                saveStarToDatabase(item.id, item.star, item.starCount)
+                saveStarToDatabase(item.id, newStarred, newCount)
             }
 
             // 点击整个条目跳转详情页（排除播放按钮区域）
@@ -330,14 +364,14 @@ class FeedAdapter : ListAdapter<AdItem, RecyclerView.ViewHolder>(diffCallback) {
             }
         }
 
-        private fun updateLikeState(item: AdItem) {
-            likeBtn.setColorFilter((if (item.like) 0xFFFF4081 else 0xFF999999).toInt(), PorterDuff.Mode.SRC_IN)
-            likeCount.text = formatCount(item.likeCount)
+        private fun updateLikeState(isLiked: Boolean, count: Int) {
+            likeBtn.setColorFilter((if (isLiked) 0xFFFF4081 else 0xFF999999).toInt(), PorterDuff.Mode.SRC_IN)
+            likeCount.text = formatCount(count)
         }
 
-        private fun updateStarState(item: AdItem) {
-            starBtn.setColorFilter((if (item.star) 0xFFFFD700 else 0xFF999999).toInt(), PorterDuff.Mode.SRC_IN)
-            starCount.text = formatCount(item.starCount)
+        private fun updateStarState(isStarred: Boolean, count: Int) {
+            starBtn.setColorFilter((if (isStarred) 0xFFFFD700 else 0xFF999999).toInt(), PorterDuff.Mode.SRC_IN)
+            starCount.text = formatCount(count)
         }
     }
 
@@ -400,8 +434,6 @@ class FeedAdapter : ListAdapter<AdItem, RecyclerView.ViewHolder>(diffCallback) {
         val index = currentList.indexOfFirst { it.id == itemId }
         if (index != -1) {
             currentList[index] = currentList[index].copy(
-                like = isLiked,
-                star = isStarred,
                 likeCount = likeCount,
                 starCount = starCount
             )

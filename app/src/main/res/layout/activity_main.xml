@@ -9,6 +9,7 @@
     android:background="@color/bg_main"
     android:paddingTop="?attr/actionBarSize">
 
+
     <!-- 顶部固定区域背景（与下方信息流形成视觉区分） -->
     <LinearLayout
         android:id="@+id/header_container"

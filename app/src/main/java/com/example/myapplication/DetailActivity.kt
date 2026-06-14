@@ -173,19 +173,40 @@ class DetailActivity : AppCompatActivity() {
                 videoPlayBtn.visibility = View.GONE
             }
 
+            // 大播放按钮点击（包括播放中暂停/继续，以及播放完成后从封面图重播）
             videoPlayBtn.setOnClickListener {
-                if (isPlaying) {
+                if (videoView.visibility != View.VISIBLE) {
+                    // 视频已播放完成（封面图可见）→ 从头重播
+                    imageView.visibility = View.GONE
+                    videoView.visibility = View.VISIBLE
+                    videoPlayBtn.visibility = View.GONE
+                    videoControlBar.visibility = View.VISIBLE
+                    videoView.seekTo(0)
+                    videoView.start()
+                    isPlaying = true
+                    vidPlayBtn.setImageResource(android.R.drawable.ic_media_pause)
+                } else if (isPlaying) {
+                    // 播放中 → 暂停，同时显示中间的大播放按钮，让用户知道如何继续
                     videoView.pause()
                     videoPlayBtn.setImageResource(android.R.drawable.ic_media_play)
+                    videoPlayBtn.visibility = View.VISIBLE
+                    isPlaying = false
                 } else {
+                    // 已暂停 → 继续播放
                     videoView.start()
-                    videoPlayBtn.setImageResource(android.R.drawable.ic_media_pause)
                     videoPlayBtn.visibility = View.GONE
+                    isPlaying = true
                 }
-                isPlaying = !isPlaying
             }
 
-            // 点击视频显示/隐藏播放按钮和控制栏
+            // 点击封面图（视频播放完成后显示）直接重播
+            imageView.setOnClickListener {
+                if (type == 2 && !videoUrl.isNullOrEmpty() && videoView.visibility != View.VISIBLE) {
+                    videoPlayBtn.performClick()
+                }
+            }
+
+            // 点击视频画面：显示/隐藏控制栏（播放中的常规交互）
             videoView.setOnClickListener {
                 if (videoControlBar.visibility == View.VISIBLE) {
                     videoControlBar.visibility = View.GONE
@@ -221,18 +242,15 @@ class DetailActivity : AppCompatActivity() {
                 toggleFullscreen()
             }
 
-            // 视频播放完成回调 - 显示封面图
+            // 视频播放完成回调 - 显示封面图 + 大播放按钮，允许用户重播
             videoView.setOnCompletionListener {
                 isPlaying = false
                 vidPlayBtn.setImageResource(android.R.drawable.ic_media_play)
                 videoView.visibility = View.GONE
                 imageView.visibility = View.VISIBLE
-                Glide.with(this)
-                    .load(imgUrl)
-                    .placeholder(R.drawable.ic_launcher_background)
-                    .error(R.drawable.ic_launcher_background)
-                    .centerCrop()
-                    .into(imageView)
+                // 播放完成后在封面图中央显示一个大播放按钮，让用户知道可以重播
+                videoPlayBtn.setImageResource(android.R.drawable.ic_media_play)
+                videoPlayBtn.visibility = View.VISIBLE
                 videoControlBar.visibility = View.GONE
             }
         } else {

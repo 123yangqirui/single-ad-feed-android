@@ -17,6 +17,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.example.myapplication.dataprocess.AdItem
 import com.example.myapplication.dataprocess.AppDatabase
+import com.example.myapplication.dataprocess.UserManager
 import kotlinx.coroutines.Dispatchers
 
 
@@ -118,6 +119,9 @@ open class BaseChannelFragment(private val channelType: Int) : Fragment(), Filte
         adapter.setOnItemClickListener(object : FeedAdapter.OnItemClickListener {
             override fun onItemClick(item: AdItem) {
                 // 跳转到详情页
+                val user = UserManager.getCurrentUser()
+                val userLiked = user?.likeList?.contains(item.id) ?: false
+                val userStarred = user?.starList?.contains(item.id) ?: false
                 val intent = Intent(activity, DetailActivity::class.java).apply {
                     putExtra(DetailActivity.EXTRA_ID, item.id)
                     putExtra(DetailActivity.EXTRA_TITLE, item.title)
@@ -127,8 +131,8 @@ open class BaseChannelFragment(private val channelType: Int) : Fragment(), Filte
                     putExtra(DetailActivity.EXTRA_IMG_URL, item.imgUrl)
                     putExtra(DetailActivity.EXTRA_VIDEO_URL, item.videoUrl)
                     putExtra(DetailActivity.EXTRA_TYPE, item.type)
-                    putExtra(DetailActivity.EXTRA_LIKE, item.like)
-                    putExtra(DetailActivity.EXTRA_STAR, item.star)
+                    putExtra(DetailActivity.EXTRA_LIKE, userLiked)
+                    putExtra(DetailActivity.EXTRA_STAR, userStarred)
                     putExtra(DetailActivity.EXTRA_LIKE_COUNT, item.likeCount)
                     putExtra(DetailActivity.EXTRA_STAR_COUNT, item.starCount)
                 }
@@ -161,11 +165,35 @@ open class BaseChannelFragment(private val channelType: Int) : Fragment(), Filte
 
     //清空旧数据、重置更多数据标签、重新加载新的页面
     private fun refreshData() {
-        lifecycleScope.launch {
+        if (isLoading) return
+        isLoading = true
+        page = 0 // 从第 0 页重新开始
 
-            dataList.clear()
-            hasMore = true
-            loadNextPage()
+        lifecycleScope.launch(Dispatchers.IO) {
+            val tags = FilterManager.getSelectedTags()
+            val (newItems, moreAvailable) = if (tags.isNotEmpty()) {
+                val allItems = dao.getAllItemsByChannel(channelType)
+                val filtered = allItems.filter { item ->
+                    item.label.any { label -> tags.contains(label) }
+                }
+                filtered to false
+            } else {
+                val items = dao.getItemsSync(channelType, page * pageSize, pageSize)
+                val more = !(items.isEmpty() || items.size < pageSize)
+                items to more
+            }
+
+            lifecycleScope.launch(Dispatchers.Main) {
+                hasMore = moreAvailable
+                // 清空旧数据 + 加载新数据 + 提交给 adapter：全部在主线程同一个调用中完成
+                dataList.clear()
+                dataList.addAll(newItems)
+                val finalList = dataList.toList()
+                val showFooter = !hasMore && finalList.isNotEmpty()
+                adapter.submitListAndFooter(finalList, showFooter)
+                isLoading = false
+                swipeRefresh.isRefreshing = false
+            }
         }
     }
 
@@ -229,36 +257,35 @@ open class BaseChannelFragment(private val channelType: Int) : Fragment(), Filte
         }
     }
 
-    //数据加载逻辑
+    //数据加载逻辑（所有数据/UI 修改都在主线程原子完成，避免 RecyclerView 不一致崩溃）
     private fun loadNextPage() {
         if (isLoading) return
         isLoading = true
 
         lifecycleScope.launch(Dispatchers.IO) {
             val tags = FilterManager.getSelectedTags()
-            val list = if (tags.isNotEmpty()) {
+            val (newItems, moreAvailable) = if (tags.isNotEmpty()) {
                 // 有过滤标签时，加载全部数据并过滤（不分页）
                 val allItems = dao.getAllItemsByChannel(channelType)
                 val filtered = allItems.filter { item ->
                     item.label.any { label -> tags.contains(label) }
                 }
-                hasMore = false // 过滤时不分页
-                filtered
+                filtered to false
             } else {
                 // 无过滤时正常分页加载
                 val items = dao.getItemsSync(channelType, page * pageSize, pageSize)
-                if (items.isEmpty() || items.size < pageSize) {
-                    hasMore = false
-                }
-                items
+                val more = !(items.isEmpty() || items.size < pageSize)
+                items to more
             }
 
-            dataList.addAll(list)
-
-            // UI 更新必须在主线程执行
+            // 所有数据更新、UI 更新都切到主线程原子执行，防止 RecyclerView 读到不一致状态
             lifecycleScope.launch(Dispatchers.Main) {
-                adapter.submitList(dataList.toList())
-                adapter.setShowFooter(!hasMore && dataList.isNotEmpty())
+                hasMore = moreAvailable
+                // 对 dataList 的修改和对 adapter 的提交必须在同一个主线程调用中完成
+                dataList.addAll(newItems)
+                val finalList = dataList.toList()
+                val showFooter = !hasMore && finalList.isNotEmpty()
+                adapter.submitListAndFooter(finalList, showFooter)
                 isLoading = false
                 swipeRefresh.isRefreshing = false
             }
