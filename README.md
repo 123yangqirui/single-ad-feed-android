@@ -8,9 +8,7 @@
 
 ### 1.1 项目定位
 
-**My Application** 是一个面向 Android 平台的广告内容推荐 Demo 应用。它通过本地 Room 数据库存储广告内容和用户数据，在首页以信息流形式展示不同频道的广告，同时集成 DeepSeek API，让用户可以通过自然语言搜索广告内容。
-
-项目适合作为以下场景的学习或展示案例：
+**My Application** 是一个Android平台单列广告信息流的Demo 应用。它通过本地 Room 数据库存储广告内容和用户数据，在首页以信息流形式展示不同频道的广告，同时集成 DeepSeek API，让用户可以通过自然语言搜索广告内容。
 
 - Android 原生页面开发
 - RecyclerView 多类型列表
@@ -59,23 +57,20 @@
 ### 1.4 整体流程
 
 ```text
-LoginActivity
-    |
-    v
-MainActivity
-    |
-    +-- ViewPager2
-    |     +-- Channel_1 -> BaseChannelFragment(channelType = 0)
-    |     +-- Channel_2 -> BaseChannelFragment(channelType = 1)
-    |     +-- Channel_3 -> BaseChannelFragment(channelType = 2)
-    |
-    +-- DialogActivity -> AiClient -> DeepSeek API
-    |                  -> SearchService -> Room
-    |
-    +-- UserProfileActivity
+登录界面
+   |
+   v
+主界面
+   |
+   +-- ViewPager2
+   |     +-- 频道一
+   |     +-- 频道二
+   |     +-- 频道三
+   |
+   +-- AI对话框 -> 调用大模型 -> 检索本地数据并返回
+   |
+   +-- 个人中心
 
-BaseChannelFragment -> FeedAdapter -> DetailActivity
-DetailActivity -> AdItemDao / UserManager
 ```
 
 ### 1.5 数据模型
@@ -123,7 +118,7 @@ DEEPSEEK_API_KEY=your_api_key_here
 
 说明：
 
-- `local.properties` 只用于本地环境配置，不应提交真实 API Key。
+- `local.properties` 只用于本地环境配置
 - 不配置 API Key 时，登录、首页、详情页、个人中心、本地 Mock 数据等功能仍可运行。
 - AI 对话功能需要有效的 DeepSeek API Key 才能正常请求。
 
@@ -156,35 +151,9 @@ Windows PowerShell：
 app/build/outputs/apk/debug/
 ```
 
-### 2.6 常用命令
 
-macOS / Linux：
 
-```bash
-# 构建 Debug 包
-./gradlew assembleDebug
-
-# 运行本地单元测试
-./gradlew test
-
-# 运行 Android 仪器测试
-./gradlew connectedAndroidTest
-```
-
-Windows PowerShell：
-
-```powershell
-# 构建 Debug 包
-.\gradlew.bat assembleDebug
-
-# 运行本地单元测试
-.\gradlew.bat test
-
-# 运行 Android 仪器测试
-.\gradlew.bat connectedAndroidTest
-```
-
-### 2.7 首次运行说明
+### 2.6 首次运行说明
 
 首次进入首页时，项目会执行数据初始化：
 
@@ -288,16 +257,6 @@ app/src/main/
 | `AiService.kt` | Retrofit 接口定义。 |
 | `AiResponse.kt` | AI 返回结构定义。 |
 | `SearchService.kt` | 本地数据库检索服务，根据 AI 返回的方法和标签查询广告。 |
-
-AI 检索支持的方法：
-
-| 方法 | 说明 |
-| --- | --- |
-| `searchByTag` | 根据单个标签检索广告。 |
-| `searchByMultipleTags` | 根据多个标签检索广告。 |
-| `searchByChannel` | 根据频道编号检索广告。 |
-| `searchByKeyword` | 根据关键词检索标题、简介和详情内容。 |
-| `none` | 不执行数据库检索，仅展示 AI 回复。 |
 
 ### 3.7 工具与资源模块
 
