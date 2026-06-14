@@ -313,89 +313,45 @@ AI 检索支持的方法：
 
 ---
 
-## 四、开发规范
+## 五、AI 使用声明
 
-### 4.1 命名规范
+本项目在开发过程中使用了 AI 工具作为辅助，以下为具体分工说明。
 
-| 类型 | 规范 | 示例 |
-| --- | --- | --- |
-| 类名 | PascalCase | `MainActivity`、`FeedAdapter` |
-| 方法名 | camelCase | `loadNextPage()`、`updateButtonState()` |
-| 变量名 | camelCase | `currentHintIndex`、`selectedTagsLayout` |
-| 常量名 | UPPER_SNAKE_CASE | `EXTRA_TITLE`、`EXTRA_ID` |
-| XML 布局 | snake_case | `activity_main.xml`、`item_video.xml` |
-| Drawable 资源 | snake_case | `bg_channel_btn_selected.xml` |
-| 动画资源 | snake_case | `slide_in_right.xml` |
+### 5.1 AI 辅助完成的部分
 
-### 4.2 代码组织规范
+- **主界面 + ViewPager2 + Fragment 框架搭建**：首页三频道结构、`ChannelPagerAdapter`、`BaseChannelFragment` 基类骨架由 AI 生成，在此基础上进行了完善和调试。
+- **网络请求（Retrofit + OkHttp）**：DeepSeek API 客户端、`AiService` 接口定义、请求头构造与 JSON 响应解析的基础代码由 AI 辅助完成。
+- **数据库（Room 实体 + DAO + 数据库配置）**：`AdItem` / `User` 实体、`AdItemDao` / `UserDao` 接口、`AppDatabase` 配置及 `TypeConverter` 由 AI 辅助搭建。
+- **README 文档**：项目介绍、技术栈、模块划分、开发规范等章节的初稿由 AI 生成。
+- **Bug 调试**：编译错误、数据库版本升级、协程调度问题、API 响应解析异常等问题的排查思路和修复方案参考了 AI 建议。
+- **设计方案完善**：页面结构、数据流向、AI 检索策略、接口契约设计在讨论阶段参考了 AI 的方案输出。
 
-- Activity 只负责页面绑定、用户交互和页面跳转，复杂逻辑尽量拆到 Manager、Service 或 Adapter。
-- Fragment 负责频道页面生命周期和列表数据加载。
-- Adapter 只负责列表项展示、点击事件分发和局部 UI 状态更新。
-- DAO 只负责数据库访问，不承载业务规则。
-- Service 负责可复用业务逻辑，例如 AI 搜索、本地检索。
-- 工具类放入 `util/`，避免散落在页面类中。
-- 新增实体或数据库字段时，需要同步更新 Room 版本号和迁移策略。
+### 5.2 人工验证和优化
 
-### 4.3 UI 与资源规范
+- 对 AI 给出的方案进行合理性评估，判断是否符合项目需求。
+- 手动梳理各页面之间的跳转关系、数据传递字段与状态同步流程。
+- 对 AI 生成的代码进行手动走读，检查空值处理、线程切换、生命周期管理是否正确。
+- 通过 Android Studio 实际编译并在模拟器 / 真机上运行，验证核心功能。
+- 检查数据库初始化、点赞收藏状态更新、标签过滤等关键逻辑的数据库行为是否符合预期。
+- 对 AI 生成的网络请求代码进行抓包验证，确认请求头、请求体与响应解析格式正确。
+- `MainActivity` 频道切换高亮、搜索提示文字滚动动画、右上角三点菜单 Popup 及动画。
+- 首页标签过滤区域的动态渲染（选中标签的展示、移除与状态同步）。
+- `DetailActivity` 视频播放控制栏：播放/暂停、进度拖动、静音、全屏切换、播放完成后展示封面图。
+- 详情页点赞 / 收藏按钮的点击动画、数量格式化、状态回传给列表。
+- 列表项多类型布局（大图、小图、视频）的设计与适配。
+- 页面切换动画（`slide_in_left`、`slide_out_right` 等）。
 
-- 页面布局统一放在 `res/layout/`。
-- 可复用背景、按钮样式、标签样式放在 `res/drawable/`。
-- 颜色统一维护在 `res/values/colors.xml`。
-- 字符串建议逐步收敛到 `res/values/strings.xml`，减少硬编码。
-- 列表项布局使用 `item_` 前缀，例如 `item_big_image.xml`。
-- Activity 布局使用 `activity_` 前缀，例如 `activity_detail.xml`。
-- Fragment 布局使用 `fragment_` 前缀，例如 `fragment_channel_list.xml`。
-- 动画资源放在 `res/anim/`，命名体现方向和用途。
-
-### 4.4 数据库开发规范
-
-- 所有广告内容相关查询放在 `AdItemDao`。
-- 所有用户相关查询放在 `UserDao`。
-- 数据库实体字段变更后，需要关注数据库版本升级。
-- 对 `List<String>` 等复杂字段，应通过 `TypeConverter` 统一转换。
-- 不建议在 UI 主线程直接执行数据库耗时操作，应使用 `Dispatchers.IO`。
-
-### 4.5 异步与生命周期规范
-
-- 页面相关异步任务优先使用 `lifecycleScope`。
-- 数据库和网络请求应切换到 `Dispatchers.IO`。
-- 避免在新增代码中继续扩大 `GlobalScope` 的使用范围。
-- Activity / Fragment 销毁时，应停止定时任务、视频播放和无效回调。
-- 视频播放状态应通过 `VideoPlaybackManager` 统一管理，避免多个视频同时播放。
-
-### 4.6 AI 接入规范
-
-- API Key 只从 `local.properties` 读取，不要硬编码在 Kotlin 文件中。
-- `AiClient` 负责网络请求和响应解析。
-- `SearchService` 负责本地检索，不直接处理 UI。
-- AI 返回内容应容错处理：JSON 解析失败时，需要给用户展示友好提示。
-- 新增搜索方式时，需要同时更新提示词、`AiResponse` 约定和 `SearchService.executeSearch()`。
-
-### 4.7 Git 与提交规范
-
-建议提交信息使用清晰的动词开头，例如：
-
-```text
-feat: add AI search result cards
-fix: sync like state after detail page returns
-docs: improve README structure
-refactor: extract user state manager
-```
-
-提交前建议检查：
-
-- 项目能否正常构建。
-- README 是否与实际代码一致。
-- 是否误提交了真实 API Key、构建产物或本地 IDE 配置。
-- 是否影响已有登录、首页、详情、个人中心和 AI 搜索流程。
-
-### 4.8 后续优化建议
-
-- 将 `UserManager` 从 `ListConverter.kt` 拆分为独立文件。
-- 将 `GlobalScope` 逐步替换为生命周期感知的协程作用域。
-- 为 Room 数据库补充正式 Migration。
-- 将硬编码字符串逐步迁移到 `strings.xml`。
-- 为搜索、标签过滤、点赞收藏状态同步补充单元测试。
-- 对 AI 返回 JSON 增加更严格的字段校验和错误兜底。
-
+- `LoginActivity` → `MainActivity` → `DetailActivity` → 返回刷新 的完整跳转链路。
+- `DetailActivity` 使用 `startActivityForResult` / `ActivityResult` 机制回传点赞收藏状态。
+- `MainActivity` 右上角菜单跳转到 `UserProfileActivity` 的逻辑。
+- `DialogActivity` 从首页搜索框启动并携带初始查询内容。
+- `DataInitHelper` 本地 Mock 数据的构造与初始化时机控制。
+- `UserManager` 浏览历史、点赞列表、收藏列表的管理逻辑。
+- `AdItemDao` 分页查询、按频道查询、按标签过滤、按关键词搜索等 SQL 的编写与调试验证。
+- 数据库版本升级时的 `fallbackToDestructiveMigration` 兜底策略确认。
+- 视频播放状态管理：避免多个视频同时播放、页面销毁时释放资源。
+- 搜索提示文字滚动：`Handler + Runnable` 定时任务在 `onDestroy` 中正确释放。
+- 标签过滤：`FilterManager` 全局状态同步，支持跨页面监听与更新。
+- 列表分页与下拉刷新：滚动到底部附近触发下一页加载，刷新时重置分页。
+- 代码组织：复杂逻辑从 Activity 拆分到 Manager / Service / Adapter，保持页面类职责清晰。
+- 动画与视觉细节：按钮点击缩放、页面切换动画、视频控制栏显示/隐藏等交互效果。
